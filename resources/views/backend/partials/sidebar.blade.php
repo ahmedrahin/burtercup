@@ -1,0 +1,91 @@
+<div class="section-menu-left">
+    <div class="box-logo">
+        <a href="{{ route('dashboard') }}" id="site-logo-inner">
+            <img class="" id="logo_header" alt="" src="{{ asset($system_settings->logo) }}" data-light="{{ asset($system_settings->logo) }}" data-dark="{{ asset($system_settings->dark_logo) }}" >
+        </a>
+        <div class="button-show-hide">
+            <i class="icon-menu-left"></i>
+        </div>
+    </div>
+    <div class="section-menu-left-wrap">
+        <div class="center">
+            <div class="center-item">
+                <ul class="menu-list">
+                    <li class="menu-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                        <a href="{{ route('dashboard') }}" class="menu-item-button">
+                            <div class="icon">
+                                <i class="icon-grid"></i>
+                            </div>
+                            <div class="text">Dashboard</div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="center-item">
+                <div class="center-heading">Admin Management</div>
+                <ul class="menu-list">
+                    <li class="menu-item has-children {{ request()->routeIs('admin*') ? 'active' : '' }}">
+                        <a href="javascript:void(0);" class="menu-item-button">
+                            <div class="icon"><i class="icon-user-check"></i></div>
+                            <div class="text">Admin Details</div>
+                        </a>
+                        <ul class="sub-menu">
+                            <li class="sub-menu-item">
+                                <a href="{{ route('admin.index') }}" class="{{ request()->routeIs('admin.index') ? 'active' : '' }}">
+                                    <div class="text">Admin List</div>
+                                </a>
+                            </li>
+                            <li class="sub-menu-item">
+                                <a href="{{ route('admin.create') }}" class="{{ request()->routeIs('admin.create') ? 'active' : '' }}">
+                                    <div class="text">Create new Admin</div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <div class="center-heading" style="margin-top: 15px;">User Management</div>
+                    <ul class="menu-list">
+                        <li class="menu-item">
+                            <a href="{{ route('user.index') }}" class="{{ request()->routeIs('user.index') ? 'active' : '' }}" style="padding-bottom: 5px;">
+                                <div class="icon"><i class="icon-user-plus"></i></div>
+                                <div class="text">Register User</div>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <ul class="menu-list">
+                        <li class="menu-item">
+                            <a href="{{ route('user.message') }}" class="{{ request()->routeIs('user.message') ? 'active' : '' }}">
+                                <div class="icon"><i class="icon-mail"></i></div>
+                                <div class="text">User Messages</div>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="center-heading" style="margin-top: 15px;">System Settings</div>
+                    <li class="menu-item has-children {{ request()->routeIs('system-setting*') ? 'active' : '' }}">
+                        <a href="javascript:void(0);" class="menu-item-button">
+                            <div class="icon"><i class="icon-settings"></i></div>
+                            <div class="text">Settings</div>
+                        </a>
+                        <ul class="sub-menu">
+                            <li class="sub-menu-item">
+                                <a href="{{ route('system-setting.index') }}" class="{{ request()->routeIs('system-setting.index') ? 'active' : '' }}">
+                                    <div class="text">System Settings</div>
+                                </a>
+                            </li>
+                            <li class="sub-menu-item">
+                                <a href="{{ route('sociallink-setting.index') }}" class="{{ request()->routeIs('sociallink-setting.index') ? 'active' : '' }}">
+                                    <div class="text">Social Link</div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                </ul>
+            </div>
+
+        </div>
+
+    </div>
+</div>
