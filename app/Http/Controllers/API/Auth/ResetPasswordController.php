@@ -109,7 +109,8 @@ class ResetPasswordController extends Controller
     public function resetPassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'reset_token' => 'required|string', // Use reset token instead of email and OTP
+            // 'reset_token' => 'required|string',
+            'email' => 'required',
             'new_password' => 'required|string|min:6|confirmed',
             'new_password_confirmation' => 'required|string|min:6|same:new_password',
         ]);
@@ -122,7 +123,7 @@ class ResetPasswordController extends Controller
             ], 422);
         }
 
-        $user = User::where('reset_token', $request->reset_token)->first();
+        $user = User::where('email', $request->email)->first();
 
         if (!$user) {
             return response()->json([

@@ -24,6 +24,11 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('/register', 'register');
     Route::post('/login', 'login');
     Route::post('/logout', 'logout');
+
+    // user OTP
+    Route::post('/verify/registration', 'verifyRegistrationOtp');
+    Route::post('/resend/registration/otp', 'resendRegistrationOtp');
+    Route::post('/verify-otp', 'verifyOtp');
 });
 
 
@@ -42,13 +47,13 @@ Route::get('/email/verify/{id}/{hash}', function ($id, $hash) {
     }
 
     if ($user->hasVerifiedEmail()) {
-        return redirect()->to('https://bartercup.com/congratulation');
+        // return redirect()->to('https://bartercup.com/congratulation');
     }
 
     $user->markEmailAsVerified();
     event(new Verified($user));
 
-    return redirect()->to('https://bartercup.com/congratulation');
+    // return redirect()->to('https://bartercup.com/congratulation');
 })->middleware(['signed'])->name('verification.verify');
 
 

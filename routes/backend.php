@@ -7,6 +7,7 @@ use App\Http\Controllers\Web\Backend\Settings\SystemSettingController;
 use App\Http\Controllers\Web\Backend\Settings\LinkSocialController;
 use App\Http\Controllers\Web\Backend\User\UserController;
 use App\Http\Controllers\Web\Backend\User\AdminController;
+use App\Http\Controllers\Web\Backend\ProductCatelouge\CategoryController;
 
 
 /*
@@ -51,6 +52,12 @@ use App\Http\Middleware\isAdmin;
 
         //     Route::get('chat/{id}', 'chat')->name('chat');
         // });
+
+
+        Route::resource('category', CategoryController::class);
+        Route::post('/category/update-status', [CategoryController::class, 'updateStatus'])->name('category.status');
+        Route::post('/category/toggle-featured', [CategoryController::class, 'toggleFeatured'])->name('category.toggleFeatured');
+        Route::post('/category/toggle-menu-featured', [CategoryController::class, 'toggleMenuFeatured'])->name('category.toggleMenuFeatured');
 
 
         // settings

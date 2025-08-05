@@ -29,7 +29,8 @@ class AuthController extends Controller
 
      public function register(Request $request){
         $validator = Validator::make($request->all(), [
-            'name'          => 'required|string|max:255',
+            'first_name'          => 'required|string|max:255',
+            'last_name'          => 'required|string|max:255',
             'email'         => 'required|string|email|max:255|unique:users',
             'password'      => 'required|string|confirmed|min:6',
             'phone'         => 'nullable|string|max:15',
@@ -45,29 +46,23 @@ class AuthController extends Controller
         DB::beginTransaction();
         try {
             $user = User::create([
-                'name'      => $request->name,
+                'name'      => $request->first_name,
+                'last_name' => $request->last_name,
                 'email'     => $request->email,
                 'password'  => Hash::make($request->password),
                 'phone'     => $request->phone
             ]);
 
-
-            $user->save();
-
-            // Send OTP via email
-            Mail::send('api.emails.otp-reg', ['otp' => $otp], function ($message) use ($user) {
-                $message->to($user->email);
-                $message->subject('Your Registration OTP');
-            });
+            $token = JWTAuth::fromUser($user);
+            $user->sendEmailVerificationNotification();
 
             DB::commit();
 
             return response()->json([
                 'success' => true,
                 'code' => 200,
-                'message'   => 'User registered successfully. Please check your email for the OTP.',
+                'message'   => 'User registered successfully.',
                 'token'     => $token,
-                'otp'       => $otp,
                 'verified'  => false,
             ], );
 
@@ -240,7 +235,7 @@ class AuthController extends Controller
              'code' => 200,
              'message' => 'User login successfully',
              'token' => $token,
-             'user_data' => $user,
+            //  'user_data' => $user,
              'email_verified' => $user->hasVerifiedEmail(),
          ]);
      }

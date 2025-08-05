@@ -11,7 +11,7 @@
     {{-- <h1>{{ $malePercent }}</h1>
     <h1>{{ $femalePercent }}</h1> --}}
 
-    <div class="main-content-wrap">
+    {{-- <div class="main-content-wrap">
         <div class="tf-section-2 mb-30">
             <div class="flex gap20 flex-wrap-mobile">
                 <div class="w-half">
@@ -192,7 +192,7 @@
             <!-- category -->
 
         </div>
-    </div>
+    </div> --}}
 
 @endsection
 
