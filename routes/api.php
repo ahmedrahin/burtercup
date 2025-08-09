@@ -77,5 +77,6 @@ Route::post('/email/resend', function (Request $request) {
 
 Route::middleware(['auth:api', 'verified'])->group(function () {
     Route::post('user-message', [UserMessage::class, 'sendMessage']);
+    Route::post('user-onboard', [AuthController::class, 'onboard']);
     Route::post('share', [UserMessage::class, 'share']);
 });

@@ -77,6 +77,54 @@ class AuthController extends Controller
 
      }
 
+     public function onboard(Request $request){
+        $user = auth('api')->user();
+
+        // Check if the user is authenticated
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found',
+                'code' => 401,
+            ], 401);
+        }
+
+         $validator = Validator::make($request->all(), [
+            'date_of_birth' => 'required|date|before_or_equal:' . now()->subYears(15)->format('Y-m-d'),
+            'gender' => 'required',
+            'city' => 'required',
+            'country' => 'required',
+            'categories' => 'required',
+            'phone' => 'required',
+
+        ],[
+            'date_of_birth.before_or_equal' => 'You must be at least 15 years old to register.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => $validator->errors()->all(),
+                'status' => false,
+            ], 400);
+        }
+
+        $user->update([
+            'gender'      => $request->gender,
+            'country'     => $request->country,
+            'city'        => $request->city,
+            'date_of_birth' => $request->date_of_birth,
+            'categories' => is_string($request->categories) ? json_decode($request->categories, true) : $request->categories,
+            'age'  => Carbon::parse($request->date_of_birth)->age,
+        ]);
+
+         return response()->json([
+            'success' => true,
+            'code' => 200,
+            'message'   => 'User information update successfully',
+        ], );
+
+     }
+
      public function verifyRegistrationOtp(Request $request)
      {
          $validator = Validator::make($request->all(), [
