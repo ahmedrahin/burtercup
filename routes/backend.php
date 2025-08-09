@@ -8,7 +8,9 @@ use App\Http\Controllers\Web\Backend\Settings\LinkSocialController;
 use App\Http\Controllers\Web\Backend\User\UserController;
 use App\Http\Controllers\Web\Backend\User\AdminController;
 use App\Http\Controllers\Web\Backend\ProductCatelouge\CategoryController;
-
+use App\Http\Controllers\Web\Backend\Product\ProductController;
+use App\Http\Controllers\Web\Backend\Product\ProductOption;
+use App\Http\Controllers\Web\Backend\Product\AttributeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,6 +60,13 @@ use App\Http\Middleware\isAdmin;
         Route::post('/category/update-status', [CategoryController::class, 'updateStatus'])->name('category.status');
         Route::post('/category/toggle-featured', [CategoryController::class, 'toggleFeatured'])->name('category.toggleFeatured');
         Route::post('/category/toggle-menu-featured', [CategoryController::class, 'toggleMenuFeatured'])->name('category.toggleMenuFeatured');
+
+
+         // product management
+        Route::resource('product', ProductController::class);
+        Route::get('/get-subcategories/{category_id}', [CategoryController::class, 'getSubcategories']);
+        Route::post('/product/update-status', [ProductController::class, 'updateStatus'])->name('product.status');
+        Route::post('/product/toggle-featured', [ProductController::class, 'toggleFeatured'])->name('product.toggleFeatured');
 
 
         // settings

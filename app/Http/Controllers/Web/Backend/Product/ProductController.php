@@ -136,9 +136,9 @@ class ProductController extends Controller
      */
     public function create()
     {
-        $sizes = AttributeValue::whereNotNull('size_value')->get();
-        $colors = AttributeValue::whereNotNull('color_value')->get();
-        return view('backend.layouts.product.create', compact('sizes', 'colors'));
+        // $sizes = AttributeValue::whereNotNull('size_value')->get();
+        // $colors = AttributeValue::whereNotNull('color_value')->get();
+        return view('backend.layouts.product.create');
     }
 
     /**
@@ -149,36 +149,21 @@ class ProductController extends Controller
         // dd($request->all());
         $rules = [
             'name'                      => 'required|string|unique:products,name',
-            'category'                  => 'required|exists:categories,id',
+            'quantity'                  => 'required|min:1',
             'image'                     => 'required|image',
             'status'                    => 'required|boolean|in:1,2,3,0',
             'expire_date'               => 'nullable|date|after_or_equal:now',
-            'base_price'                => 'required|min:1',
-            'quantity'                  => 'required'
+            'coins'                     => 'required',
         ];
 
-        if ($request->has('discount_option') && $request->discount_option != 1) {
-            $rules['discount_percentage_or_flat_amount'] = 'required|numeric|min:1';
-        }
 
         $messages = [
             'expire_date.after_or_equal'  => 'The expiry date must be a current or future time.',
             'image.required' => 'Select a thumbnail image',
-            'base_price.required' => 'Enter a product price'
         ];
 
         $validated = $request->validate($rules, $messages);
 
-        $basePrice = $validated['base_price'];
-        $discountData = $this->calculateDiscount($request, $basePrice);
-
-        if ($discountData['discount_amount'] > $basePrice) {
-            return response()->json([
-                'errors' => [
-                    'discount_percentage_or_flat_amount' => ['Discount amount cannot exceed the base price.']
-                ]
-            ], 422);
-        }
 
         if (!empty($errors)) {
             return response()->json(['errors' => $errors], 422);
@@ -189,17 +174,6 @@ class ProductController extends Controller
             $imagePath = Helper::fileUpload($request->file('image'), 'product', $randomString);
         }
 
-        if ($request->hasFile('sunglass')) {
-            $randomString = (string) Str::uuid();
-            $imagePathsunglass = Helper::fileUpload($request->file('sunglass'), 'product/sunglass', $randomString);
-        }
-
-        if ($request->hasFile('model')) {
-            $randomString = (string) Str::uuid();
-            $modelFile = Helper::fileUpload($request->file('model'), 'product/model', $randomString);
-        }
-
-        $discountData = $this->calculateDiscount($request, $validated['base_price']);
 
         // Ensure unique slug
         $baseSlug = Str::slug($validated['name']);
@@ -214,21 +188,14 @@ class ProductController extends Controller
         $data = [
             'name' => $validated['name'],
             'slug' => $slug,
-            'brand_id' => $request->brand,
-            'category_id' => $validated['category'],
-            'subcategory_id' => $request->subcategory,
+            'coin' => $request->coins,
+            'quantity' => $request->quantity,
             'description' => $request->description,
             'status' => $request->status,
             'is_new' => $request->is_new ?? 0,
             'is_featured' => $request->is_featured ?? 0,
             'user_id' => auth()->id(),
-            'base_price' => $validated['base_price'],
-            'discount_option' => $discountData['discount_option'],
-            'discount_percentage_or_flat_amount' => $discountData['discount_percentage_or_flat_amount'],
-            'discount_amount' => $discountData['discount_amount'],
-            'offer_price' => $discountData['offer_price'],
-            'sku_code' => $request->sku,
-            'quantity' => $request->quantity,
+            'add_source' => 'admin'
         ];
 
         if ($request->has('expire_date') && !empty($request->expire_date)) {
@@ -244,14 +211,6 @@ class ProductController extends Controller
 
         if (isset($imagePath)) {
             $data['thumb_image'] = $imagePath;
-        }
-
-        if (isset($imagePathsunglass)) {
-            $data['back_image'] = $imagePathsunglass;
-        }
-
-        if (isset($modelFile)) {
-            $data['model'] = $modelFile;
         }
 
         $product = Product::create($data);
@@ -306,24 +265,6 @@ class ProductController extends Controller
                 ]);
             }
         }
-
-        ProductMeasurement::create([
-            'product_id'          => $product->id,
-            'frame_width'         => $request->frame_width,
-            'bridge'              => $request->bridge,
-            'lens_width'          => $request->lens_width,
-            'lens_height'         => $request->lens_height,
-            'temple_length'       => $request->temple_length,
-        ]);
-
-        ProductFrameDetails::create([
-            'product_id'          => $product->id,
-            'size'                => $request->size,
-            'material'            => $request->material,
-            'shape'               => $request->shape,
-            'gender'              => $request->gender,
-            'type'                => $request->type,
-        ]);
 
         if( $request->tags && !is_null($request->tags) ){
             $this->storeTags($request, $product);
@@ -594,25 +535,6 @@ class ProductController extends Controller
         return redirect()->back();
     }
 
-
-    private function calculateDiscount(Request $request, float $basePrice): array
-    {
-        $discountPercentageOrFlatAmount = $request->discount_percentage_or_flat_amount ?? 0;
-        $discountAmount = 0;
-
-        if ($request->discount_option == 2) {
-            $discountAmount = round($basePrice * $discountPercentageOrFlatAmount / 100);
-        } elseif ($request->discount_option == 3) {
-            $discountAmount = $discountPercentageOrFlatAmount;
-        }
-
-        return [
-            'discount_option' => $request->discount_option ?? 1,
-            'discount_percentage_or_flat_amount' => $discountPercentageOrFlatAmount,
-            'discount_amount' => $discountAmount,
-            'offer_price' => $basePrice - $discountAmount,
-        ];
-    }
 
     private function storeTags(Request $request, Product $product): void
     {

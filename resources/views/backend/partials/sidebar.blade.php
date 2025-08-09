@@ -63,7 +63,7 @@
                     </ul>
 
 
-                    <li class="menu-item has-children {{ request()->routeIs('category*') ? 'active' : '' }}">
+                    {{-- <li class="menu-item has-children {{ request()->routeIs('category*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon"><i class="icon-layers"></i></div>
                             <div class="text">Categories</div>
@@ -77,6 +77,26 @@
                             <li class="sub-menu-item">
                                 <a href="{{ route('category.create') }}" class="{{ request()->routeIs('category.create') ? 'active' : '' }}">
                                     <div class="text">Add new category</div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li> --}}
+
+                    <div class="center-heading" style="margin-top: 15px;">PRODUCT Management</div>
+                    <li class="menu-item has-children {{ request()->routeIs('product*') ? 'active' : '' }}">
+                        <a href="javascript:void(0);" class="menu-item-button">
+                            <div class="icon"><i class="icon-gift"></i></div>
+                            <div class="text">Products</div>
+                        </a>
+                        <ul class="sub-menu">
+                            <li class="sub-menu-item">
+                                <a href="{{ route('product.index') }}" class="{{ request()->routeIs('product.index') ? 'active' : '' }}">
+                                    <div class="text">All Product</div>
+                                </a>
+                            </li>
+                            <li class="sub-menu-item">
+                                <a href="{{ route('product.create') }}" class="{{ request()->routeIs('product.create') ? 'active' : '' }}">
+                                    <div class="text">Add new product</div>
                                 </a>
                             </li>
                         </ul>
