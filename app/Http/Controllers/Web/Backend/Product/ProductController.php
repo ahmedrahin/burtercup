@@ -136,9 +136,9 @@ class ProductController extends Controller
      */
     public function create()
     {
-        // $sizes = AttributeValue::whereNotNull('size_value')->get();
-        // $colors = AttributeValue::whereNotNull('color_value')->get();
-        return view('backend.layouts.product.create');
+        $sizes = AttributeValue::whereNotNull('size_value')->get();
+        $colors = AttributeValue::whereNotNull('color_value')->get();
+        return view('backend.layouts.product.create', compact('sizes', 'colors'));
     }
 
     /**

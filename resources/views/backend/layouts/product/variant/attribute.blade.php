@@ -55,7 +55,7 @@
             <div class="col-md-4">
                 <div class="wg-box">
                     <div class="d-flex align-items-center justify-between mb-4 top">
-                        <h3>Opacity</h3>
+                        <h3>Size</h3>
                         <div>
                             <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#addSizeModal" style="font-size: 13px;">
                                 <i class="icon-plus"></i> Add new
@@ -136,7 +136,7 @@
                     <!-- Modal Header -->
                     <div class="modal-header" style="background-color: #f9f9f9; border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
                         <h5 class="modal-title text-dark fw-semibold" id="addSizeModalLabel">
-                            <i class="fas fa-ruler-combined me-2" style="color: #00796b;"></i> Add Opacity
+                            <i class="fas fa-ruler-combined me-2" style="color: #00796b;"></i> Add Size
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="color: #00796b;"></button>
                     </div>

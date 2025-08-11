@@ -283,7 +283,7 @@ class AuthController extends Controller
              'code' => 200,
              'message' => 'User login successfully',
              'token' => $token,
-            //  'user_data' => $user,
+             'user_data' => $user,
              'email_verified' => $user->hasVerifiedEmail(),
          ]);
      }

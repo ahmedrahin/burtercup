@@ -63,11 +63,11 @@
 
         </div>
 
-        {{-- <div class="widget-content-inner">
+        <div class="widget-content-inner">
             @include('backend.layouts.product.create-component.product-variant')
         </div>
 
-        <div class="widget-content-inner ">
+        {{-- <div class="widget-content-inner ">
             <div class="wg-table table-revision-history">
                 @include('backend.layouts.product.create-component.product-details')
             </div>

@@ -61,7 +61,8 @@ use App\Http\Middleware\isAdmin;
         Route::post('/category/toggle-featured', [CategoryController::class, 'toggleFeatured'])->name('category.toggleFeatured');
         Route::post('/category/toggle-menu-featured', [CategoryController::class, 'toggleMenuFeatured'])->name('category.toggleMenuFeatured');
 
-
+        Route::resource('attribute', controller: AttributeController::class);
+        
          // product management
         Route::resource('product', ProductController::class);
         Route::get('/get-subcategories/{category_id}', [CategoryController::class, 'getSubcategories']);
