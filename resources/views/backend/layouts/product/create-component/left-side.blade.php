@@ -9,9 +9,9 @@
             <li class="item-title">
                 <span class="inner"><span class="h6">Product Variant</span></span>
             </li>
-            <li class="item-title">
+            {{-- <li class="item-title">
                 <span class="inner"><span class="h6">Product Details</span></span>
-            </li>
+            </li> --}}
         </ul>
     </div>
 
@@ -67,7 +67,7 @@
             @include('backend.layouts.product.create-component.product-variant')
         </div>
 
-        {{-- <div class="widget-content-inner ">
+        {{-- <div class="widget-content-inner ">a
             <div class="wg-table table-revision-history">
                 @include('backend.layouts.product.create-component.product-details')
             </div>

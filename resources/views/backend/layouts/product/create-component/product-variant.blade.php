@@ -2,7 +2,7 @@
     <div class="col-md-4">
         <div class="wg-box">
             <div class="d-flex align-items-center justify-between mb-4 top">
-                <h3>Select Opacity</h3>
+                <h3>Select Size</h3>
             </div>
 
             <div class="right flex-grow">
@@ -43,4 +43,56 @@
 
 
     </div>
+
+    <div class="wg-box" style="margin: 30px 0 0;">
+        <div class="flex gap10 items-center justify-between" style="padding-bottom: 8px;">
+            <div class="body-title head">Length</div>
+        </div>
+        <div class="divider" style="margin-bottom: 10px;"></div>
+        <div>
+            <div class="item">
+                <div class="body-title mb-10" style="margin: 0;">CM:</div>
+                <input type="text" name="length_cm" style="flex: 1;">
+            </div>
+            <div class="item">
+                <div class="body-title mb-10" style="margin: 0;">INC:</div>
+                <input type="text" name="length_in" style="flex: 1;">
+            </div>
+        </div>
+    </div>
+
+    <div class="wg-box" style="margin: 30px 0 0;">
+        <div class="flex gap10 items-center justify-between" style="padding-bottom: 8px;">
+            <div class="body-title head">Width</div>
+        </div>
+        <div class="divider" style="margin-bottom: 10px;"></div>
+        <div>
+            <div class="item">
+                <div class="body-title mb-10" style="margin: 0;">CM:</div>
+                <input type="text" name="width_in" style="flex: 1;">
+            </div>
+            <div class="item">
+                <div class="body-title mb-10" style="margin: 0;">INC:</div>
+                <input type="text" name="width_cm" style="flex: 1;">
+            </div>
+        </div>
+    </div>
+
+    <div class="wg-box" style="margin: 30px 0 0;">
+        <div class="flex gap10 items-center justify-between" style="padding-bottom: 8px;">
+            <div class="body-title head">Height</div>
+        </div>
+        <div class="divider" style="margin-bottom: 10px;"></div>
+        <div>
+            <div class="item">
+                <div class="body-title mb-10" style="margin: 0;">CM:</div>
+                <input type="text" name="height_in" style="flex: 1;">
+            </div>
+            <div class="item">
+                <div class="body-title mb-10" style="margin: 0;">INC:</div>
+                <input type="text" name="height_cm" style="flex: 1;">
+            </div>
+        </div>
+    </div>
+
 </div>

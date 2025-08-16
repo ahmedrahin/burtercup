@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Web\Backend\Product;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
-use App\Models\ProductMeasurement;
-use App\Models\ProductFrameDetails;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use App\Helpers\Helper;
@@ -15,6 +13,7 @@ use Carbon\Carbon;
 use Yajra\DataTables\DataTables;
 use App\Models\AttributeValue;
 use App\Models\ProductVariant;
+use App\Models\ProductSize;
 
 class ProductController extends Controller
 {
@@ -66,12 +65,8 @@ class ProductController extends Controller
                     return $qty;
                 })
 
-                ->addColumn('price', function ($row) {
-                    if ($row->discount_option == 1) {
-                        return ($row->base_price) . '৳';
-                    } else {
-                        return ($row->offer_price) . '৳' . '<br><del style="color: #f1416cad;opacity:.8;">' . ($row->base_price) . '৳' . '</del>';
-                    }
+                ->addColumn('coin', function ($row) {
+                    return $row->coin;
                 })
 
                 ->editColumn('category', function ($row) {
@@ -156,7 +151,6 @@ class ProductController extends Controller
             'coins'                     => 'required',
         ];
 
-
         $messages = [
             'expire_date.after_or_equal'  => 'The expiry date must be a current or future time.',
             'image.required' => 'Select a thumbnail image',
@@ -195,7 +189,8 @@ class ProductController extends Controller
             'is_new' => $request->is_new ?? 0,
             'is_featured' => $request->is_featured ?? 0,
             'user_id' => auth()->id(),
-            'add_source' => 'admin'
+            'add_source' => 'app',
+            'category_id' => $request->category
         ];
 
         if ($request->has('expire_date') && !empty($request->expire_date)) {
@@ -269,6 +264,27 @@ class ProductController extends Controller
         if( $request->tags && !is_null($request->tags) ){
             $this->storeTags($request, $product);
         }
+
+       // Check if at least one size field is filled
+        if (
+            $request->filled('length_cm') ||
+            $request->filled('length_in') ||
+            $request->filled('width_cm')  ||
+            $request->filled('width_in')  ||
+            $request->filled('height_cm') ||
+            $request->filled('height_in')
+        ) {
+            ProductSize::create([
+                'product_id' => $product->id,
+                'length_cm'  => $request->length_cm,
+                'length_in'  => $request->length_in,
+                'width_cm'   => $request->width_cm,
+                'width_in'   => $request->width_in,
+                'height_cm'  => $request->height_cm,
+                'height_in'  => $request->height_in,
+            ]);
+        }
+
 
         return response()->json([
             'message' => 'Product created successfully!',

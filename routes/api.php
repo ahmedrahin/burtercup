@@ -6,6 +6,7 @@ use App\Http\Controllers\API\Auth\AuthController;
 use App\Http\Controllers\API\Auth\ResetPasswordController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\UserMessage;
+use App\Http\Controllers\API\Product\ProductController;
 use App\Models\User;
 use Illuminate\Auth\Events\Verified;
 
@@ -77,6 +78,12 @@ Route::post('/email/resend', function (Request $request) {
 
 Route::middleware(['auth:api', 'verified'])->group(function () {
     Route::post('user-message', [UserMessage::class, 'sendMessage']);
-    Route::post('user-onboard', [AuthController::class, 'onboard']);
+    Route::post('onboard-one', [AuthController::class, 'onboard_one']);
+    Route::post('onboard-two', [AuthController::class, 'onboard_two']);
     Route::post('share', [UserMessage::class, 'share']);
+
+    Route::controller(ProductController::class)->group(function(){
+        Route::post('add-product', 'addProduct');
+    });
+
 });

@@ -21,6 +21,7 @@ return new class extends Migration
             $table->enum('gender', ['male', 'female'])->nullable();
             $table->string('city')->nullable();
             $table->string('country')->nullable();
+            $table->string('address')->nullable();
             $table->integer('age')->nullable();
 
             $table->integer('coins')->default(0);
@@ -34,6 +35,8 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->string('otp')->nullable();
             $table->timestamp('otp_expiration')->nullable();
+            $table->boolean('onboard_first')->default(0);
+            $table->boolean('onboard_sec')->default(0);
             $table->string('reset_token')->nullable();
             $table->datetime('last_login_at')->nullable();
             $table->rememberToken();

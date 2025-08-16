@@ -45,7 +45,7 @@ class ResetPasswordController extends Controller
             ], 422);
         }
 
-        $otp = rand(1000, 9999); // Generate 4-digit OTP
+        $otp = rand(100000, 999999); // Generate 6-digit OTP
         $user = User::where('email', $request->email)->first();
         $user->otp = $otp;
         $user->otp_expiration = now()->addMinutes(30);
@@ -109,8 +109,7 @@ class ResetPasswordController extends Controller
     public function resetPassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            // 'reset_token' => 'required|string',
-            'email' => 'required',
+            'reset_token' => 'required|string',
             'new_password' => 'required|string|min:6|confirmed',
             'new_password_confirmation' => 'required|string|min:6|same:new_password',
         ]);
@@ -123,7 +122,7 @@ class ResetPasswordController extends Controller
             ], 422);
         }
 
-        $user = User::where('email', $request->email)->first();
+       $user = User::where('reset_token', $request->reset_token)->first();
 
         if (!$user) {
             return response()->json([

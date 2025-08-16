@@ -144,7 +144,7 @@
                     <!-- Modal Body -->
                     <div class="modal-body" style="background-color: #f9f9f9;">
                         <div class="mb-3">
-                            <label for="sizeInput" class="form-label fw-medium" style="color: #555;">Opacity</label>
+                            <label for="sizeInput" class="form-label fw-medium" style="color: #555;">Size</label>
                             <input type="text" class="form-control form-control-lg rounded-3" id="sizeInput" name="value" placeholder="e.g. 10, 20"  style="border: 1px solid #ced4da; background-color: #fafafa; color: #495057;">
                             <div class="text-danger error-value mt-1"></div>
                             <input type="hidden" name="size" value="1">

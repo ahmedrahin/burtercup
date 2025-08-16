@@ -8,10 +8,7 @@ class Product extends Model
 {
     protected $guarded = [];
 
-    public function brand()
-    {
-        return $this->belongsTo(Brand::class);
-    }
+    
 
     public function category()
     {
@@ -26,16 +23,6 @@ class Product extends Model
     public function tags()
     {
         return $this->hasMany(PorductTag::class);
-    }
-
-    public function measurements()
-    {
-        return $this->hasOne(ProductMeasurement::class);
-    }
-
-    public function frameDetails()
-    {
-        return $this->hasOne(ProductFrameDetails::class);
     }
 
     public function variants(){
@@ -57,6 +44,11 @@ class Product extends Model
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function productSizes()
+    {
+        return $this->hasMany(ProductSize::class);
     }
 
       protected $casts = [

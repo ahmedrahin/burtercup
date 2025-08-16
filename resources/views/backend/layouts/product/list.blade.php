@@ -63,8 +63,7 @@
                         <th class="text-center body-title" style="width: 8%;">Image</th>
                         <th class="text-left body-title" style="width: 15%;">Name</th>
                         <th class="text-center body-title" style="width: 10%;">Quantity</th>
-                        <th class="text-center body-title" style="width: 10%;">Price</th>
-                        <th class="text-center body-title" style="width: 15%;">Category</th>
+                        <th class="text-center body-title" style="width: 10%;">Coins</th>
                         <th class="text-center body-title" style="width: 10%;">Selling</th>
                         <th class="text-center body-title" style="width: 10%;">Is_featured</th>
                         <th class="text-center body-title" style="width: 10%;">Created_at</th>
@@ -129,8 +128,7 @@
                 { data: 'image', name: 'image', className: 'text-center', orderable: false, searchable: false },
                 { data: 'name', name: 'name', searchable: true, orderable: true },
                 { data: 'quantity', name: 'quantity', className: 'text-center' },
-                { data: 'price', name: 'price', className: 'text-center' },
-                { data: 'category', name: 'category', className: 'text-center' },
+                { data: 'coin', name: 'coin', className: 'text-center' },
                 { data: 'selling', name: 'selling', className: 'text-center' },
                 { data: 'is_featured', name: 'is_featured', orderable: false, searchable: false, className: 'text-center' },
                 { data: 'created_at', name: 'created_at', orderable: false, searchable: false, className: 'text-center' },

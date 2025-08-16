@@ -62,8 +62,9 @@ class AuthController extends Controller
                 'success' => true,
                 'code' => 200,
                 'message'   => 'User registered successfully.',
+                'user_data' => $user,
                 'token'     => $token,
-                'verified'  => false,
+                'email_verified'  => false,
             ], );
 
         } catch (Exception $e) {
@@ -77,7 +78,7 @@ class AuthController extends Controller
 
      }
 
-     public function onboard(Request $request){
+     public function onboard_one(Request $request){
         $user = auth('api')->user();
 
         // Check if the user is authenticated
@@ -89,13 +90,18 @@ class AuthController extends Controller
             ], 401);
         }
 
+        if($user->onboard_first){
+            return response()->json([
+                'status' => false,
+                'message' => 'User information already updated',
+                'code' => 401,
+            ], 401);
+        }
+
          $validator = Validator::make($request->all(), [
             'date_of_birth' => 'required|date|before_or_equal:' . now()->subYears(15)->format('Y-m-d'),
             'gender' => 'required',
-            'city' => 'required',
-            'country' => 'required',
             'categories' => 'required',
-            'phone' => 'required',
 
         ],[
             'date_of_birth.before_or_equal' => 'You must be at least 15 years old to register.',
@@ -110,11 +116,10 @@ class AuthController extends Controller
 
         $user->update([
             'gender'      => $request->gender,
-            'country'     => $request->country,
-            'city'        => $request->city,
             'date_of_birth' => $request->date_of_birth,
             'categories' => is_string($request->categories) ? json_decode($request->categories, true) : $request->categories,
             'age'  => Carbon::parse($request->date_of_birth)->age,
+            'onboard_first' => true,
         ]);
 
          return response()->json([
@@ -123,6 +128,50 @@ class AuthController extends Controller
             'message'   => 'User information update successfully',
         ], );
 
+     }
+
+     public function onboard_two(Request $request){
+        $user = auth('api')->user();
+
+        // Check if the user is authenticated
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found',
+                'code' => 401,
+            ], 401);
+        }
+
+         $validator = Validator::make($request->all(), [
+            'city' => 'required',
+            'country' => 'required',
+            'phone' => 'required',
+            'address' => 'required',
+
+        ],[
+            'date_of_birth.before_or_equal' => 'You must be at least 15 years old to register.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => $validator->errors()->all(),
+                'status' => false,
+            ], 400);
+        }
+
+        $user->update([
+            'country'     => $request->country,
+            'city'        => $request->city,
+            'phone'        => $request->phone,
+            'address'        => $request->address,
+            'onboard_sec' => true,
+        ]);
+
+         return response()->json([
+            'success' => true,
+            'code' => 200,
+            'message'   => 'User information update successfully',
+        ], );
      }
 
      public function verifyRegistrationOtp(Request $request)
@@ -285,6 +334,8 @@ class AuthController extends Controller
              'token' => $token,
              'user_data' => $user,
              'email_verified' => $user->hasVerifiedEmail(),
+             'onboard_first' => $user->onboard_first ? true : false,
+             'onboard_sec' => $user->onboard_sec ? true : false,
          ]);
      }
 
@@ -300,9 +351,9 @@ class AuthController extends Controller
                 'success' => true,
                 'code' => 200,
             ], 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
-                'error' => 'Failed to log out, please try again.',
+                'error' => 'Failed to log out, please try again.' . $e->getMessage(),
                 'code'    => 500,
             ], 500);
         }
