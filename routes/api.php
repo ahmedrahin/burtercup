@@ -84,6 +84,9 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
 
     Route::controller(ProductController::class)->group(function(){
         Route::post('add-product', 'addProduct');
+        Route::get('selected-categories', 'selectedCategories');
+        Route::get('product-options/{id}', 'productOptions');
+        Route::post('update-options/{id}', 'updateOptions');
     });
 
 });

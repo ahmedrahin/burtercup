@@ -415,46 +415,7 @@ class ProductController extends Controller
 
         $product->save();
 
-        // Update or create measurements
-        if ($product->measurements) {
-            $product->measurements->update([
-                'frame_width' => $request->frame_width,
-                'bridge' => $request->bridge,
-                'lens_width' => $request->lens_width,
-                'lens_height' => $request->lens_height,
-                'temple_length' => $request->temple_length,
-            ]);
-        } else {
-            ProductMeasurement::create([
-                'product_id' => $product->id,
-                'frame_width' => $request->frame_width,
-                'bridge' => $request->bridge,
-                'lens_width' => $request->lens_width,
-                'lens_height' => $request->lens_height,
-                'temple_length' => $request->temple_length,
-            ]);
-        }
-
-        // Update or create frame details
-        if ($product->frameDetails) {
-            $product->frameDetails->update([
-                'size' => $request->size,
-                'material' => $request->material,
-                'shape' => $request->shape,
-                'gender' => $request->gender,
-                'type' => $request->type,
-            ]);
-        } else {
-            ProductFrameDetails::create([
-                'product_id' => $product->id,
-                'size' => $request->size,
-                'material' => $request->material,
-                'shape' => $request->shape,
-                'gender' => $request->gender,
-                'type' => $request->type,
-            ]);
-        }
-
+        
         // Tags
         if ($request->filled('tags')) {
             $this->updateTags($request, $product);
