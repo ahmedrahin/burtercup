@@ -312,7 +312,7 @@ class ProductController extends Controller
      */
     public function edit(string $id)
     {
-        $data = Product::with(['tags', 'measurements', 'frameDetails', 'gellary_images', 'variants'])->find($id);
+        $data = Product::with(['tags', 'gellary_images', 'variants'])->find($id);
         $sizes = AttributeValue::whereNotNull('size_value')->get();
         $colors = AttributeValue::whereNotNull('color_value')->get();
 
@@ -320,141 +320,59 @@ class ProductController extends Controller
         $selectedSizes = $data->variants->pluck('size_value')->filter()->unique()->toArray();
         $selectedColors = $data->variants->pluck('color_value')->filter()->unique()->toArray();
 
-        return view('backend.layouts.product.edit', compact('data', 'sizes', 'colors', 'selectedSizes', 'selectedColors'));
+        $options = optional($data->productSizes->first());
+
+
+        return view('backend.layouts.product.edit', compact('data', 'sizes', 'colors', 'selectedSizes', 'selectedColors', 'options'));
     }
 
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+   public function update(Request $request, $id)
     {
-        $product = Product::with(['measurements', 'frameDetails', 'gellary_images', 'variants'])->findOrFail($id);
+        $product = Product::with(['gellary_images', 'variants', 'productSizes'])->findOrFail($id);
 
+        // Validation
         $rules = [
-            'name'                      => 'required|string|unique:products,name,' . $product->id,
-            'category'                  => 'required|exists:categories,id',
-            'status'                    => 'required|boolean|in:1,2,3,0',
-            'expire_date'               => 'nullable|date|after_or_equal:now',
-            'base_price'                => 'required|min:1',
-            'quantity'                  => 'required',
+            'name'       => 'required|string|unique:products,name,' . $product->id,
+            'status'     => 'required|boolean|in:1,2,3,0',
+            'expire_date'=> 'nullable|date|after_or_equal:now',
+            'quantity'   => 'required|min:1',
+            'coins'      => 'required',
         ];
 
-        if ($request->has('discount_option') && $request->discount_option != 1) {
-            $rules['discount_percentage_or_flat_amount'] = 'required|numeric|min:1';
-        }
+        $validated = $request->validate($rules);
 
-        $messages = [
-            'expire_date.after_or_equal'  => 'The expiry date must be a current or future time.',
-            'image.required' => 'Select a thumbnail image',
-            'base_price.required' => 'Enter a product price',
-        ];
-
-        $validated = $request->validate($rules, $messages);
-
-        $basePrice = $validated['base_price'];
-        $discountData = $this->calculateDiscount($request, $basePrice);
-
-        if ($discountData['discount_amount'] > $basePrice) {
-            return response()->json([
-                'errors' => [
-                    'discount_percentage_or_flat_amount' => ['Discount amount cannot exceed the base price.']
-                ]
-            ], 422);
-        }
-
-        // Handle thumb_image
+        // Handle thumbnail image
         if ($request->hasFile('image')) {
             if ($product->thumb_image && file_exists(public_path($product->thumb_image))) {
                 unlink(public_path($product->thumb_image));
             }
-            $randomString = (string) Str::uuid();
-            $imagePath = Helper::fileUpload($request->file('image'), 'product', $randomString);
+            $imagePath = Helper::fileUpload($request->file('image'), 'product', (string) Str::uuid());
             $product->thumb_image = $imagePath;
-        }
-
-        // Handle back_image (sunglass)
-        if ($request->hasFile('sunglass')) {
-            if ($product->back_image && file_exists(public_path($product->back_image))) {
-                unlink(public_path($product->back_image));
-            }
-            $randomString = (string) Str::uuid();
-            $imagePathsunglass = Helper::fileUpload($request->file('sunglass'), 'product/sunglass', $randomString);
-            $product->back_image = $imagePathsunglass;
-        }
-
-        if ($request->hasFile('model')) {
-            if ($product->model && file_exists(public_path($product->model))) {
-                unlink(public_path($product->model));
-            }
-            $randomString = (string) Str::uuid();
-            $modelFile = Helper::fileUpload($request->file('model'), 'product/model', $randomString);
-            $product->model = $modelFile;
         }
 
         // Update core product info
         $product->update([
-            'name' => $validated['name'],
-            'brand_id' => $request->brand,
-            'category_id' => $validated['category'],
-            'subcategory_id' => $request->subcategory,
+            'name'        => $validated['name'],
             'description' => $request->description,
-            'status' => $request->status,
-            'is_new' => $request->is_new ?? 0,
+            'status'      => $request->status,
+            'quantity'    => $validated['quantity'],
+            'coin'        => $request->coins,
+            'expire_date' => $request->expire_date ? Carbon::parse($request->expire_date)->format('Y-m-d H:i:s') : null,
+            'is_new'      => $request->is_new ?? 0,
             'is_featured' => $request->is_featured ?? 0,
-            'base_price' => $validated['base_price'],
-            'discount_option' => $discountData['discount_option'],
-            'discount_percentage_or_flat_amount' => $discountData['discount_percentage_or_flat_amount'],
-            'discount_amount' => $discountData['discount_amount'],
-            'offer_price' => $discountData['offer_price'],
-            'sku_code' => $request->sku,
-            'quantity' => $request->quantity,
-            'expire_date' => $request->has('expire_date') && !empty($request->expire_date) ?
-                Carbon::createFromFormat('Y-m-d h:i A', trim($request->expire_date))->format('Y-m-d H:i:s') : null,
         ]);
 
-        $product->save();
-
-        
-        // Tags
-        if ($request->filled('tags')) {
-            $this->updateTags($request, $product);
-        }
-
-        // Remove deleted gallery images
-        if ($request->has('removed_image_ids')) {
-            $ids = explode(',', $request->removed_image_ids);
-            foreach ($ids as $imageId) {
-                $galleryImage = $product->gellary_images()->find($imageId);
-                if ($galleryImage) {
-                    $imagePath = public_path($galleryImage->image);
-                    if (file_exists($imagePath)) {
-                        unlink($imagePath);
-                    }
-                    $galleryImage->delete();
-                }
-            }
-        }
-
-        // Add new gallery images
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $randomString = (string) Str::uuid();
-                $galleryImagePath = Helper::fileUpload($image, 'product/gellary', $randomString);
-
-                $product->gellary_images()->create([
-                    'image' => $galleryImagePath,
-                ]);
-            }
-        }
-
-        // Handle size/color variants
+        // Handle sizes/colors
         $sizes = array_unique($request->input('sizes', []));
         $colors = array_unique($request->input('colors', []));
 
         $currentVariants = ProductVariant::where('product_id', $product->id)->get();
-
         $existingVariants = [];
+
         foreach ($currentVariants as $variant) {
             $key = ($variant->size_value ?? '') . '|' . ($variant->color_value ?? '');
             $existingVariants[$key] = $variant;
@@ -471,7 +389,7 @@ class ProductController extends Controller
                         ProductVariant::create([
                             'product_id' => $product->id,
                             'size_value' => $size,
-                            'color_value' => $color,
+                            'color_value'=> $color,
                         ]);
                     }
                 }
@@ -484,7 +402,7 @@ class ProductController extends Controller
                     ProductVariant::create([
                         'product_id' => $product->id,
                         'size_value' => $size,
-                        'color_value' => null,
+                        'color_value'=> null,
                     ]);
                 }
             }
@@ -496,21 +414,57 @@ class ProductController extends Controller
                     ProductVariant::create([
                         'product_id' => $product->id,
                         'size_value' => null,
-                        'color_value' => $color,
+                        'color_value'=> $color,
                     ]);
                 }
             }
         }
 
-        // Remove variants that no longer exist
+        // Remove old variants
         foreach ($existingVariants as $key => $variant) {
             if (!in_array($key, $newVariantKeys)) {
                 $variant->delete();
             }
         }
 
-        return redirect()->back();
+        // Handle dimensions (length, width, height) using updateOrCreate
+        if (
+            $request->filled('length_cm') ||
+            $request->filled('length_in') ||
+            $request->filled('width_cm')  ||
+            $request->filled('width_in')  ||
+            $request->filled('height_cm') ||
+            $request->filled('height_in')
+        ) {
+            ProductSize::updateOrCreate(
+                ['product_id' => $product->id],
+                [
+                    'length_cm' => $request->length_cm,
+                    'length_in' => $request->length_in,
+                    'width_cm'  => $request->width_cm,
+                    'width_in'  => $request->width_in,
+                    'height_cm' => $request->height_cm,
+                    'height_in' => $request->height_in,
+                ]
+            );
+        }
+
+        // Handle new gallery images
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $galleryImagePath = Helper::fileUpload($image, 'product/gellary', (string) Str::uuid());
+                $product->gellary_images()->create(['image' => $galleryImagePath]);
+            }
+        }
+
+        // Handle tags
+        if ($request->filled('tags')) {
+            $this->updateTags($request, $product);
+        }
+
+         return redirect()->route('product.index')->with('success', 'Product updated successfully!');
     }
+
 
 
     private function storeTags(Request $request, Product $product): void

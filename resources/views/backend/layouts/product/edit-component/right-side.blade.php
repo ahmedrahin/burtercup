@@ -6,63 +6,7 @@
         <div class="error text-danger"></div>
     </div>
 </div>
-<div class="wg-box">
-    <div>
-        <div class="body-title mb-10">Sunglass Image</div>
-        <input type="file" class="form-control dropify" id="sunglass" name="sunglass" accept="image/*" data-default-file="{{ isset($data) && $data->back_image ? asset($data->back_image) : '' }}">
-        <div class="error text-danger"></div>
-    </div>
-</div>
-<div class="wg-box">
-    <div>
-        <div class="body-title mb-10">Model File Upload</div>
-        <div>
-            <input type="file" name="model" class="form-control">
-            <div class="error text-danger"></div>
-        </div>
-    </div>
-</div>
-<div class="wg-box">
-    <div>
-        <div class="body-title mb-10">Brand</div>
-        <div>
-            <select class="select2" name="brand" id="brand">
-                <option value="">Select a brand</option>
-                @foreach (\App\Models\Brand::where('status', 'active')->latest()->get() as $brand )
-                    <option value="{{ $brand->id }}" {{ $brand->id == $data->brand_id ? 'selected' : '' }} >{{ $brand->name }}</option>
-                @endforeach
-            </select>
-            <div class="error text-danger"></div>
-        </div>
-    </div>
-</div>
 
-<div class="wg-box">
-    <div>
-        <div class="body-title mb-10">Category</div>
-        <div>
-            <select class="select2" name="category" id="categorySelect">
-                <option value="">Select a category</option>
-                @foreach (\App\Models\Category::whereNull('parent_id')->where('status', 'active')->latest()->get() as $category)
-                    <option value="{{ $category->id }}" {{ old('category', $data->category_id) == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
-                @endforeach
-            </select>
-            <div class="error text-danger"></div>
-        </div>
-    </div>
-</div>
-
-<div class="wg-box">
-    <div>
-        <div class="body-title mb-10">Sub Category</div>
-        <div>
-            <select class="select2" name="subcategory" id="subcategorySelect">
-                <option value="">Select a sub category</option>
-            </select>
-            <div class="error text-danger"></div>
-        </div>
-    </div>
-</div>
 
 <div class="wg-box">
     <div>

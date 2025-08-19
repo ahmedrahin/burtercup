@@ -88,41 +88,7 @@
 
             </div>
 
-            <div class="col-md-4">
-                <div class="wg-box">
-                    <div class="d-flex align-items-center justify-between mb-4 top">
-                        <h3>Color</h3>
-                        <div>
-                            <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#addColorModal" style="font-size: 13px;">
-                                <i class="icon-plus"></i> Add new
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="right flex-grow">
-                        <div class="row g-3">
-                            @foreach($colors as $color)
-                                <div class="col-sm-6 col-md-4 col-lg-3">
-                                    <div class="position-relative bg-light rounded-3 border shadow-sm p-3 text-center size-card hover-shadow">
-                                        <h5 class="mb-0 text-primary">{{ $color->color_value }}</h5>
-
-                                        {{-- Delete Button --}}
-                                        <form action="{{ route('attribute.destroy', $color->id) }}" method="POST" class="position-absolute top-0 end-0 m-2">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm text-danger p-0" onclick="return confirm('Are you sure you want to delete this color?')">
-                                                <i class="icon-trash"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-
-
-            </div>
+           
         </div>
 
     </div>

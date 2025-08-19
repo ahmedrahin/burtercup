@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\Auth\AuthController;
 use App\Http\Controllers\API\Auth\ResetPasswordController;
 use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\API\Order\WishlistController;
 use App\Http\Controllers\API\UserMessage;
 use App\Http\Controllers\API\Product\ProductController;
 use App\Models\User;
@@ -87,6 +88,18 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
         Route::get('selected-categories', 'selectedCategories');
         Route::get('product-options/{id}', 'productOptions');
         Route::post('update-options/{id}', 'updateOptions');
+        Route::get('product-edit/{id}', 'productEdit');
+        Route::post('product-update/{id}', 'productUpdate');
+        Route::get('my-list', 'myItemList');
+        Route::get('product-details/{id}', 'productDetails');
+
+    });
+
+    // wishlist
+    Route::controller(WishlistController::class)->group(function () {
+        Route::post('add-wishlist/{id}', 'addWishlist');
+        Route::get('wishlist-list', 'wishlistList');
+        Route::delete('delete-wishlist/{id}', 'deleteWishlist');
     });
 
 });

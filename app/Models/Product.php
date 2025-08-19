@@ -8,7 +8,7 @@ class Product extends Model
 {
     protected $guarded = [];
 
-    
+
 
     public function category()
     {
@@ -41,10 +41,15 @@ class Product extends Model
         return $this->hasMany(Wishlist::class);
     }
 
-    public function orderItems()
+    public function user()
     {
-        return $this->hasMany(OrderItem::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
+
+    // public function orderItems()
+    // {
+    //     return $this->hasMany(OrderItem::class);
+    // }
 
     public function productSizes()
     {

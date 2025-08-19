@@ -21,7 +21,7 @@
         </div>
     </div>
 
-    <div class="col-md-4">
+    {{-- <div class="col-md-4">
         <div class="wg-box">
             <div class="d-flex align-items-center justify-between mb-4 top">
                 <h3>Select Color</h3>
@@ -42,7 +42,7 @@
         </div>
 
 
-    </div>
+    </div> --}}
 
     <div class="wg-box" style="margin: 30px 0 0;">
         <div class="flex gap10 items-center justify-between" style="padding-bottom: 8px;">
