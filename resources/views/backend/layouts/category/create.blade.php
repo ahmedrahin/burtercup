@@ -169,8 +169,8 @@
                         <div class="body-title mb-10">Parent Category</div>
                         <select name="parent_id" class="select2">
                             <option value="">Select a parent category</option>
-                            @foreach($categories as $cat)
-                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                            @foreach($categories as $key => $category)
+                                <option value="{{ $key }}">{{ $category['name'] }}</option>
                             @endforeach
                         </select>
                         @error('parent_id')
@@ -179,11 +179,11 @@
                     </fieldset>
 
 
-                    <fieldset class="name mb-14">
+                    {{-- <fieldset class="name mb-14">
                         <div class="body-title mb-10">Description</div>
                         <textarea name="description" placeholder="Write here..."></textarea>
                         <div class="error text-danger"></div>
-                    </fieldset>
+                    </fieldset> --}}
 
                 </div>
             </div>

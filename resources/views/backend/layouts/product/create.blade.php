@@ -327,7 +327,7 @@
 
             </ul>
         </div>
-
+      
         <!-- new-page-wrap -->
         <form class="form-new-page" id="addform" enctype="multipart/form-data">
             <div class="new-page-wrap">

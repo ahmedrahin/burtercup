@@ -8,6 +8,7 @@ use App\Models\Category;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use App\Helpers\Helper;
+use App\Models\SubCategory;
 use Yajra\DataTables\DataTables;
 
 class CategoryController extends Controller
@@ -18,7 +19,7 @@ class CategoryController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $allCategories = Category::with('parent')->orderBy('parent_id')->orderBy('id', 'asc')->get();
+            $allCategories = SubCategory::orderBy('id', 'desc')->get();
 
             $data = collect();
             foreach ($allCategories->whereNull('parent_id') as $parent) {
@@ -52,36 +53,10 @@ class CategoryController extends Controller
                     return $indent . $row->name;
                 })
 
-                ->addColumn('product', function ($row) {
-                    // $level = 1;
-                    // if (isset($row->is_sub)) {
-                    //     $level = 2;
-                    // }
-
-                    // // Count based on level
-                    // if ($level === 1) {
-                    //     $productCount = \App\Models\Product::where('category_id', $row->id)->count();
-                    // } elseif ($level === 2) {
-                    //     $productCount = \App\Models\Product::where('subcategory_id', $row->id)->count();
-                    // }
-
-                    // $badgeClass = $productCount > 0 ? 'bg-success' : 'bg-danger';
-                    // return '<div class="badge ' . $badgeClass . '">' . $productCount . '</div>';
+                ->addColumn('parent_category', function ($row) {
+                    return $row->category_name;
                 })
 
-                ->editColumn('description', function ($row) {
-                    return Str::limit($row->description, 70);
-                })
-
-                ->editColumn('is_featured', function ($row) {
-                    $checked = $row->is_featured ? 'checked' : '';
-                    return '<input type="checkbox" class="is-featured-checkbox" data-id="' . $row->id . '" ' . $checked . '>';
-                })
-
-                ->editColumn('menu_featured', function ($row) {
-                    $checked = $row->menu_featured ? 'checked' : '';
-                    return '<input type="checkbox" class="menu-featured-checkbox" data-id="' . $row->id . '" ' . $checked . '>';
-                })
 
                 ->addColumn('status', function ($row) {
                     $status = $row->status == 'active' ? 'checked' : '';
@@ -113,7 +88,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        $categories = Category::whereNull('parent_id')->get();
+        $categories = config('categories');
         return view('backend.layouts.category.create', compact('categories'));
     }
 
@@ -132,23 +107,22 @@ class CategoryController extends Controller
             $imagePath = Helper::fileUpload($request->file('image'), 'category', $randomString);
         }
 
-         // Generate unique slug
-         $baseSlug = Str::slug($validated['name']);
-         $slug = $baseSlug;
-         $count = 1;
+        // Generate unique slug
+        $baseSlug = Str::slug($validated['name']);
+        $slug = $baseSlug;
+        $count = 1;
 
-         while (Category::where('slug', $slug)->exists()) {
-             $slug = $baseSlug . '-' . $count;
-             $count++;
-         }
+        while (SubCategory::where('slug', $slug)->exists()) {
+            $slug = $baseSlug . '-' . $count;
+            $count++;
+        }
 
-         // Create brand
-        $data = Category::create([
-            'name'          => $validated['name'],
-            'slug'          => $slug,
-            'description'   => $request->description,
-            'image'         => $imagePath ?? null,
-            'parent_id'     => $request->input('parent_id'),
+        // Create brand
+        $data = SubCategory::create([
+            'name' => $validated['name'],
+            'slug' => $slug,
+            'image' => $imagePath ?? null,
+            'category_key' => $request->input('parent_id'),
         ]);
 
         return response()->json([
@@ -171,45 +145,33 @@ class CategoryController extends Controller
      */
     public function edit(string $id)
     {
-        $categories = Category::whereNull('parent_id')->get();
-        $data = Category::find($id);
-        return view('backend.layouts.category.edit', compact('data','categories'));
+        $categories = config('categories');
+        $data = SubCategory::find($id);
+        return view('backend.layouts.category.edit', compact('data', 'categories'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id){
+    public function update(Request $request, string $id)
+    {
         $validated = $request->validate([
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'name' => 'required|string|max:255'
         ]);
 
-        $edit = Category::find($id);
+        $edit = SubCategory::find($id);
+        $imagePath = $edit->image; // keep old image as default
 
-        // Prevent circular relationship
-        if ($request->parent_id) {
-            if ($request->parent_id == $edit->id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'A category cannot be its own parent.'
-                ], 422);
-            }
-
-            if ($this->isDescendant($edit->id, $request->parent_id)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'A category cannot be assigned to its own subcategory.'
-                ], 422);
-            }
-        }
-
+        // Handle image remove
         if ($request->has('remove') && $request->remove == 1) {
             if ($edit->image && File::exists(public_path($edit->image))) {
                 File::delete(public_path($edit->image));
             }
-            $edit->image = null;
+            $imagePath = null;
         }
+
+        // Handle image upload
         elseif ($request->hasFile('image')) {
             if ($edit->image && File::exists(public_path($edit->image))) {
                 File::delete(public_path($edit->image));
@@ -217,20 +179,13 @@ class CategoryController extends Controller
 
             $randomString = (string) Str::uuid();
             $imagePath = Helper::fileUpload($request->file('image'), 'category', $randomString);
-
-            if ($edit->image && file_exists(public_path($edit->image))) {
-                @unlink(public_path($edit->image));
-            }
-
-            $edit->image = $imagePath;
         }
-
         // Generate unique slug
         $baseSlug = Str::slug($validated['name']);
         $slug = $baseSlug;
         $count = 1;
 
-        while (Category::where('slug', $slug)->where('id', '!=', $edit->id)->exists()) {
+        while (SubCategory::where('slug', $slug)->where('id', '!=', $edit->id)->exists()) {
             $slug = $baseSlug . '-' . $count;
             $count++;
         }
@@ -238,9 +193,8 @@ class CategoryController extends Controller
         $edit->update([
             'name' => $validated['name'],
             'slug' => $slug,
-            'description' => $request->description,
-            'image' => $imagePath ?? $edit->image,
-            'parent_id' => $request->input('parent_id'),
+            'image' => $imagePath,
+            'category_key' => $request->input('parent_id'),
         ]);
 
         return response()->json([
@@ -269,7 +223,7 @@ class CategoryController extends Controller
      */
     public function destroy(string $id)
     {
-        $data = Category::findOrFail($id);
+        $data = SubCategory::findOrFail($id);
         $data->delete();
 
         return response()->json(['message' => 'Category deleted successfully.']);
@@ -322,7 +276,7 @@ class CategoryController extends Controller
         ]);
 
         // Find the brand
-        $data = Category::findOrFail($request->id);
+        $data = SubCategory::findOrFail($request->id);
 
         // Update the status
         $data->status = $request->status;

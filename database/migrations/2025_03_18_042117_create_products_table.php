@@ -24,6 +24,7 @@ return new class extends Migration
 
             $table->unsignedBigInteger('category_id')->nullable();
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('set null');
+             $table->integer('subcategory_id')->nullable();
 
             $table->text('description')->nullable();
             $table->text('long_description')->nullable();
@@ -37,9 +38,10 @@ return new class extends Migration
 
             $table->string('thumb_image')->nullable();
             $table->string('back_image')->nullable();
+            $table->string('condition')->nullable();
 
             $table->enum('free_shipping', ['yes', 'no'])->default('no')->comment('yes or no');
-            $table->boolean('is_new')->default(false)->comment('0=No, 1=Yes');
+            $table->boolean('is_new')->default(false)->comment('0=No, 1=Yes,');
             $table->boolean('is_featured')->default(false)->comment('0=No, 1=Yes');
             $table->string('add_source');
 

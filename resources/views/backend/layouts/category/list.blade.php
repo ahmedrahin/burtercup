@@ -62,10 +62,7 @@
                         <th class="text-left body-title" style="width: 1%;">Sl.</th>
                         <th class="text-center body-title" style="width: 12%;">Image</th>
                         <th class="text-left body-title" style="width: 20%;">Name</th>
-                        {{-- <th class="text-center body-title" style="width: 14%;">Product</th> --}}
-                        <th class="text-center body-title" style="width: 30%;">Description</th>
-                        <th class="text-center body-title" style="width: 15%;">Is_featured</th>
-                        <th class="text-center body-title" style="width: 15%;">Menu_featured</th>
+                        <th class="text-center body-title" style="width: 30%;">Parent Category</th>
                         <th class="text-center body-title" style="width: 15%;">Status</th>
                         <th style="text-align: right;width: 10%;" class="body-title">Action</th>
                     </tr>
@@ -126,10 +123,7 @@
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', className: 'text-left', orderable: false, searchable: false },
                 { data: 'image', name: 'image', className: 'text-center', orderable: false, searchable: false },
                 { data: 'name', name: 'name', searchable: true, orderable: true },
-                // { data: 'product', name: 'product', className: 'text-center' },
-                { data: 'description', name: 'description', orderable: false, searchable: false, className: 'text-center' },
-                { data: 'is_featured', name: 'is_featured', orderable: false, searchable: false, className: 'text-center' },
-                { data: 'menu_featured', name: 'menu_featured', orderable: false, searchable: false, className: 'text-center' },
+                { data: 'parent_category', name: 'parent_category', orderable: false, searchable: false, className: 'text-center' },
                 { data: 'status', name: 'status', orderable: false, searchable: false, className: 'text-center' },
                 { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-right' }
             ],

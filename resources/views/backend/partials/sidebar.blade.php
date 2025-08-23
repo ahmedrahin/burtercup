@@ -63,7 +63,17 @@
                     </ul>
 
 
-                    {{-- <li class="menu-item has-children {{ request()->routeIs('category*') ? 'active' : '' }}">
+                    <div class="center-heading" style="margin-top: 15px;">PRODUCT Management</div>
+                     <ul class="menu-list">
+                        <li class="menu-item">
+                            <a href="{{ route('attribute.index') }}" class="{{ request()->routeIs('attribute*') ? 'active' : '' }}">
+                                <div class="icon"><i class="icon-tag"></i></div>
+                                <div class="text">Product Attribute</div>
+                            </a>
+                        </li>
+                    </ul>
+
+                     <li class="menu-item has-children {{ request()->routeIs('category*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon"><i class="icon-layers"></i></div>
                             <div class="text">Categories</div>
@@ -80,18 +90,7 @@
                                 </a>
                             </li>
                         </ul>
-                    </li> --}}
-
-
-                    <div class="center-heading" style="margin-top: 15px;">PRODUCT Management</div>
-                     <ul class="menu-list">
-                        <li class="menu-item">
-                            <a href="{{ route('attribute.index') }}" class="{{ request()->routeIs('attribute*') ? 'active' : '' }}">
-                                <div class="icon"><i class="icon-tag"></i></div>
-                                <div class="text">Product Attribute</div>
-                            </a>
-                        </li>
-                    </ul>
+                    </li>
 
                     <li class="menu-item has-children {{ request()->routeIs('product*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">

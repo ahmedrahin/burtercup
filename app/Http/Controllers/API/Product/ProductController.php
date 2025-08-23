@@ -8,6 +8,8 @@ use App\Models\Product;
 use App\Models\AttributeValue;
 use App\Models\ProductVariant;
 use App\Models\Wishlist;
+use App\Models\SubCategory;
+use App\Models\SearchHistory;
 use App\Models\ProductSize;
 use Illuminate\Support\Str;
 use App\Helpers\Helper;
@@ -18,14 +20,38 @@ use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
-
     public function selectedCategories()
     {
         $user = auth('api')->user();
 
+        $categoryKeys = $user->categories ?? [];
+        $subcategories = SubCategory::whereIn('category_key', $categoryKeys)->get()->groupBy('category_key');
+
+        $data = [];
+
+        foreach ($categoryKeys as $key) {
+            if (!isset(config('categories')[$key])) {
+                continue;
+            }
+
+            $categoryConfig = config('categories')[$key];
+
+            $data[] = [
+                'key' => $key,
+                'name' => $categoryConfig['name'],
+                'image' => $categoryConfig['image'] ?? null,
+                'subcategories' => isset($subcategories[$key])
+                    ? $subcategories[$key]->map(fn($sub) => [
+                        'id' => $sub->id,
+                        'name' => $sub->name,
+                    ])->values()
+                    : [],
+            ];
+        }
+
         return response()->json([
             'status' => true,
-            'data' => $user->categories,
+            'data' => $data,
         ], 200);
     }
 
@@ -38,6 +64,9 @@ class ProductController extends Controller
             'coins' => 'required',
             'category' => 'required',
             'image' => 'required|image',
+            'condition' => 'required|string'
+        ], messages: [
+            'image.required' => 'Please select at least one product image'
         ]);
 
         if ($validator->fails()) {
@@ -76,6 +105,8 @@ class ProductController extends Controller
             'user_id' => auth()->id(),
             'add_source' => 'app',
             'category' => $request->category,
+            'subcategory_id' => $request->subcategory_id,
+            'condition' => $request->condition,
         ];
 
         if (isset($imagePath)) {
@@ -84,8 +115,8 @@ class ProductController extends Controller
 
         $product = Product::create($data);
 
-        $images = $request->file('images');
-        if ($request->hasFile('images')) {
+        $images = $request->file(key: 'gellary_images');
+        if ($request->hasFile('gellary_images')) {
             foreach ($images as $image) {
                 $randomString = (string) Str::uuid();
                 $galleryImagePath = Helper::fileUpload($image, 'product/gellary', $randomString);
@@ -106,7 +137,7 @@ class ProductController extends Controller
 
     public function productEdit($id)
     {
-        $data = Product::with(['variants', 'productSizes'])->find($id);
+        $data = Product::with(['variants', 'productSizes', 'gellary_images'])->find($id);
 
         if (!$data) {
             return response()->json([
@@ -132,7 +163,9 @@ class ProductController extends Controller
             'coins' => 'required',
             'category' => 'required',
             'image' => 'nullable|image',
-            'images.*' => 'nullable|image',
+            'condition' => 'required|string'
+        ], messages: [
+            'image.required' => 'Please select at least one product image'
         ]);
 
         if ($validator->fails()) {
@@ -171,15 +204,22 @@ class ProductController extends Controller
         $product->is_new = $request->is_new ?? $product->is_new;
         $product->is_featured = $request->is_featured ?? $product->is_featured;
         $product->category = $request->category;
+        $product->condition = $request->condition;
+        $product->subcategory_id = $request->subcategory_id ?? $product->subcategory_id;
 
         $product->save();
 
-        // Handle gallery images
-        if ($request->hasFile('images')) {
-            // Optional: delete old gallery images if needed
-            // $product->gellary_images()->delete();
+        if ($request->hasFile('gellary_images')) {
+            // Delete old gallery images (DB + file)
+            foreach ($product->gellary_images as $oldImage) {
+                if (file_exists(public_path($oldImage->image))) {
+                    unlink(public_path($oldImage->image));
+                }
+                $oldImage->delete();
+            }
 
-            foreach ($request->file('images') as $image) {
+            // Upload new gallery images
+            foreach ($request->file('gellary_images') as $image) {
                 $randomString = (string) Str::uuid();
                 $galleryImagePath = Helper::fileUpload($image, 'product/gellary', $randomString);
 
@@ -225,7 +265,6 @@ class ProductController extends Controller
             'data' => $items,
         ], 200);
     }
-
 
     public function productOptions($id)
     {
@@ -332,6 +371,7 @@ class ProductController extends Controller
             $user = auth('api')->user();
             $product = Product::with([
                 'gellary_images:product_id,image',
+                'productSizes'
                 // 'reviews.user:id,name,email,avatar'
             ])
                 ->where('id', $id)
@@ -349,6 +389,8 @@ class ProductController extends Controller
                     'message' => 'Product not found or inactive/expired.',
                 ], 404);
             }
+
+            $product->wishlist_count = Wishlist::where('product_id', $product->id)->count();
 
             // Check if the product is wishlisted by the user
             $product->is_wishlisted = false;
@@ -374,7 +416,7 @@ class ProductController extends Controller
                 'success' => true,
                 'code' => 200,
                 'data' => $product,
-                'opacity' => $sizes,
+                'sizes' => $sizes,
             ]);
 
         } catch (\Exception $e) {
@@ -384,6 +426,414 @@ class ProductController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function productDelete($id)
+    {
+        $product = Product::find($id);
+
+        if (!$product) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Product not found.',
+            ], 404);
+        }
+
+        if ($product->user_id !== auth('api')->id()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized action.',
+            ], 403);
+        }
+
+        // Delete the product
+        $product->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Product deleted successfully.',
+        ], 200);
+    }
+
+    public function searchProducts(Request $request)
+    {
+        $user = auth('api')->user();
+        $search = $request->get('query');
+
+        $products = Product::with(['user:id,name,avatar', 'category', 'tags'])
+            ->where('status', 1)
+            ->where(function ($q) {
+                $q->whereNull('expire_date')
+                    ->orWhere('expire_date', '>', now());
+            })
+            ->where(function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%")
+                    ->orWhereHas('category', fn($q) => $q->where('name', 'like', "%{$search}%"))
+                    ->orWhereHas('tags', fn($q) => $q->where('name', 'like', "%{$search}%"));
+            })
+            ->get(['id', 'user_id', 'name', 'thumb_image', 'coin', 'slug']);
+
+        $result = $products->map(function ($product) use ($user) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'thumb_image' => $product->thumb_image,
+                'slug' => $product->slug,
+                'coin' => $product->coin,
+                'user' => $product->user, // only id, name, avatar
+                'wishlist_count' => Wishlist::where('product_id', $product->id)->count(),
+                'is_wishlisted' => $user
+                    ? Wishlist::where('product_id', $product->id)
+                        ->where('user_id', $user->id)
+                        ->exists()
+                    : false,
+            ];
+        });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Search results',
+            'total' => $result->count(),
+            'data' => $result,
+        ]);
+    }
+
+    public function searchQuery(Request $request)
+    {
+        $user = auth('api')->user();
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+
+        $search = $request->get('query');
+        SearchHistory::create([
+            'user_id' => $user->id,
+            'search_query' => $search
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Search query recorded successfully.',
+        ], 200);
+
+    }
+
+    public function clearSearchHistory()
+    {
+        $user = auth('api')->user();
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+
+        SearchHistory::where('user_id', $user->id)->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Search history cleared successfully.',
+        ], 200);
+    }
+
+    public function applyFilters(Request $request)
+    {
+        $user = auth('api')->user();
+        $minPrice = trim($request->input('min_price'));
+        $maxPrice = trim($request->input('max_price'));
+        $condition = $request->input('condition');
+        $deliveryMethod = $request->input('delivery_method');
+
+        $products = Product::with(['user:id,name,avatar'])
+            ->where('status', 1)
+            ->where(function ($q) {
+                $q->whereNull('expire_date')
+                    ->orWhere('expire_date', '>', now());
+            });
+
+        // Price filters
+        if (is_numeric($minPrice)) {
+            $products->where('coin', '>=', $minPrice);
+        }
+        if (is_numeric($maxPrice)) {
+            $products->where('coin', '<=', $maxPrice);
+        }
+
+        if ($condition !== null) {
+            if (in_array($condition, ['brand_new', 'used', 'like_new', 'well_used'])) {
+                $products->where('condition', $condition);
+            } else {
+                // If condition provided but invalid, force empty result
+                $products->whereRaw('1 = 0');
+            }
+        }
+
+        // Delivery method filter
+        if ($deliveryMethod !== null) {
+            if (in_array($deliveryMethod, ['meet_up', 'shipping'])) {
+                $products->where('delivery_method', $deliveryMethod);
+            } else {
+                // If delivery method provided but invalid, force empty result
+                $products->whereRaw('1 = 0');
+            }
+        }
+
+        $products = $products->get(['id', 'user_id', 'name', 'thumb_image', 'coin', 'slug']);
+
+        $result = $products->map(function ($product) use ($user) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'thumb_image' => $product->thumb_image,
+                'slug' => $product->slug,
+                'coin' => $product->coin,
+                'user' => $product->user,
+                'wishlist_count' => Wishlist::where('product_id', $product->id)->count(),
+                'is_wishlisted' => $user
+                    ? Wishlist::where('product_id', $product->id)
+                        ->where('user_id', $user->id)
+                        ->exists()
+                    : false,
+            ];
+        });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Filtered results',
+            'total' => $result->count(),
+            'data' => $result,
+        ]);
+    }
+
+    public function sort(Request $request)
+    {
+        $user = auth('api')->user();
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+
+        $sortBy = $request->input('sort_by');
+        // expected: featured, new, high_to_low, low_to_high
+
+        $products = Product::with(['user:id,name,avatar'])
+            ->where('status', 1)
+            ->where(function ($q) {
+                $q->whereNull('expire_date')
+                    ->orWhere('expire_date', '>', now());
+            });
+
+        //Sorting logic
+        switch ($sortBy) {
+            case 'featured':
+                $products->where('is_featured', 1)
+                    ->orderBy('created_at', 'desc'); // latest featured first
+                break;
+
+            case 'new':
+                $products->where('is_new', 1)
+                    ->orderBy('is_new', 'desc'); // newest items first
+                break;
+
+            case 'high_to_low':
+                $products->orderBy('coin', 'desc');
+                break;
+
+            case 'low_to_high':
+                $products->orderBy('coin', 'asc');
+                break;
+
+            default:
+                $products->orderBy('created_at', 'desc');
+                break;
+        }
+
+        $products = $products->get(['id', 'user_id', 'name', 'thumb_image', 'coin', 'slug']);
+
+        $result = $products->map(function ($product) use ($user) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'thumb_image' => $product->thumb_image,
+                'slug' => $product->slug,
+                'coin' => $product->coin,
+                'user' => $product->user, // only id, name, avatar
+                'wishlist_count' => Wishlist::where('product_id', $product->id)->count(),
+                'is_wishlisted' => $user
+                    ? Wishlist::where('product_id', $product->id)
+                        ->where('user_id', $user->id)
+                        ->exists()
+                    : false,
+            ];
+        });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Sorted results',
+            'total' => $result->count(),
+            'data' => $result,
+        ]);
+    }
+
+    public function getCategories()
+    {
+        $categories = collect(config('categories'))->map(function ($category, $key) {
+            $subcategories = SubCategory::where('category_key', $key)->get(['id', 'category_key', 'name', 'image']);
+
+            return [
+                'key' => $key,
+                'name' => $category['name'] ?? $category,
+                'image' => $category['image'] ?? null,
+            ];
+        });
+
+        return response()->json([
+            'status' => true,
+            'data' => $categories,
+        ], 200);
+    }
+
+    public function getSubCategories(Request $request){
+        $categoryKey = $request->input('category_key');
+
+        if (!$categoryKey) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Category key is required',
+            ], 400);
+        }
+
+        $subcategories = SubCategory::where('category_key', $categoryKey)->get(['id', 'category_key', 'name', 'image']);
+
+        return response()->json([
+            'status' => true,
+            'data' => $subcategories,
+        ]);
+    }
+
+    public function productList(){
+        $user = auth('api')->user();
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+
+        $products = Product::with(['user:id,name,avatar'])
+            ->where('status', 1)
+            ->where(function ($q) {
+                $q->whereNull('expire_date')
+                    ->orWhere('expire_date', '>', now());
+            })
+            ->get(['id', 'user_id', 'name', 'thumb_image', 'coin', 'slug']);
+
+        $result = $products->map(function ($product) use ($user) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'thumb_image' => $product->thumb_image,
+                'slug' => $product->slug,
+                'coin' => $product->coin,
+                'user' => $product->user,
+                'wishlist_count' => Wishlist::where('product_id', $product->id)->count(),
+                'is_wishlisted' => $user
+                    ? Wishlist::where('product_id', $product->id)
+                        ->where('user_id', $user->id)
+                        ->exists()
+                    : false,
+            ];
+        });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Product list',
+            'total' => $result->count(),
+            'data' => $result,
+        ]);
+    }
+
+    public function categoryProductList(Request $request, $category){
+        $user = auth('api')->user();
+
+        $products = Product::with(['user:id,name,avatar'])
+            ->where('status', 1)
+            ->where('category', $category)
+            ->where(function ($q) {
+                $q->whereNull('expire_date')
+                    ->orWhere('expire_date', '>', now());
+            })
+            ->get(['id', 'user_id', 'name', 'thumb_image', 'coin', 'slug']);
+
+        $result = $products->map(function ($product) use ($user) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'thumb_image' => $product->thumb_image,
+                'slug' => $product->slug,
+                'coin' => $product->coin,
+                'user' => $product->user,
+                'wishlist_count' => Wishlist::where('product_id', $product->id)->count(),
+                'is_wishlisted' => $user
+                    ? Wishlist::where('product_id', $product->id)
+                        ->where('user_id', $user->id)
+                        ->exists()
+                    : false,
+            ];
+        });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Category product list',
+            'total' => $result->count(),
+            'data' => $result,
+        ]);
+    }
+
+    public function subcategoryProductList(Request $request, $subcategory){
+        $user = auth('api')->user();
+
+        $products = Product::with(['user:id,name,avatar'])
+            ->where('status', 1)
+            ->where('subcategory_id', $subcategory)
+            ->where(function ($q) {
+                $q->whereNull('expire_date')
+                    ->orWhere('expire_date', '>', now());
+            })
+            ->get(['id', 'user_id', 'name', 'thumb_image', 'coin', 'slug']);
+
+        $result = $products->map(function ($product) use ($user) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'thumb_image' => $product->thumb_image,
+                'slug' => $product->slug,
+                'coin' => $product->coin,
+                'user' => $product->user,
+                'wishlist_count' => Wishlist::where('product_id', $product->id)->count(),
+                'is_wishlisted' => $user
+                    ? Wishlist::where('product_id', $product->id)
+                        ->where('user_id', $user->id)
+                        ->exists()
+                    : false,
+            ];
+        });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Subcategory product list',
+            'total' => $result->count(),
+            'data' => $result,
+        ]);
     }
 
 }

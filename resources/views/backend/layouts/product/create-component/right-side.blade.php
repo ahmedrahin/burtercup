@@ -6,6 +6,20 @@
     </div>
 </div>
 
+<div class="wg-box">
+    <div>
+        <div class="body-title mb-10">Category</div>
+        <div>
+            <select class="select2" name="category" id="categorySelect">
+                <option value="">Select a category</option>
+                @foreach (\App\Models\SubCategory::where('status', 'active')->latest()->get() as $category )
+                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                @endforeach
+            </select>
+            <div class="error text-danger"></div>
+        </div>
+    </div>
+</div>
 
 <div class="wg-box">
     <div>

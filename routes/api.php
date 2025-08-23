@@ -92,7 +92,18 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
         Route::post('product-update/{id}', 'productUpdate');
         Route::get('my-list', 'myItemList');
         Route::get('product-details/{id}', 'productDetails');
-
+        Route::post('product-details/{id}', 'productDetails');
+        Route::post('product-delete/{id}', 'productDelete');
+        Route::get('/search-products', 'searchProducts');
+        Route::post('/search-query', 'searchQuery');
+        Route::post('/clear-search-history', 'clearSearchHistory');
+        Route::get('apply-filter', 'applyFilters');
+        Route::get('sort', 'sort');
+        Route::get('categories', 'getCategories');
+        Route::get('subcategories', 'getSubCategories');
+        Route::get('product-list', 'productList');
+        Route::get('category-product-list/{category}', 'categoryProductList');
+        Route::get('subcategory-product-list/{subcategory}', 'subcategoryProductList');
     });
 
     // wishlist

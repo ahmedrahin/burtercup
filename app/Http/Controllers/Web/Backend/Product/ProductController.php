@@ -189,8 +189,9 @@ class ProductController extends Controller
             'is_new' => $request->is_new ?? 0,
             'is_featured' => $request->is_featured ?? 0,
             'user_id' => auth()->id(),
-            'add_source' => 'app',
-            'category_id' => $request->category
+            'add_source' => 'admin',
+            'category' => 'bartercup',
+            'subcategory_id' => $request->category,
         ];
 
         if ($request->has('expire_date') && !empty($request->expire_date)) {

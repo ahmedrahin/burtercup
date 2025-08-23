@@ -46,6 +46,7 @@
             font-size: 12px !important;
             color: #45444887 !important;
         }
+
         .custom-select {
             -webkit-appearance: none;
             -moz-appearance: none;
@@ -84,6 +85,7 @@
             border-bottom-left-radius: 20px !important;
             border-bottom-right-radius: 20px !important;
         }
+
         .duplicate {
             margin-top: 30px;
             border-top: 1px solid #8080803b;
@@ -99,13 +101,17 @@
             <h3>@yield('title')</h3>
             <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                 <li>
-                    <a href="{{ route('dashboard') }}"><div class="text-tiny">Dashboard</div></a>
+                    <a href="{{ route('dashboard') }}">
+                        <div class="text-tiny">Dashboard</div>
+                    </a>
                 </li>
                 <li>
                     <i class="icon-chevron-right"></i>
                 </li>
                 <li>
-                    <a href="{{ route('category.index') }}"><div class="text-tiny">Category</div></a>
+                    <a href="{{ route('category.index') }}">
+                        <div class="text-tiny">Category</div>
+                    </a>
                 </li>
                 <li>
                     <i class="icon-chevron-right"></i>
@@ -125,9 +131,12 @@
                         <div class="row">
                             <div class="col-md-2 col-6">
                                 <div class="body-title mb-10">Category Image</div>
-                                <input type="file" class="form-control dropify" id="image" name="image" accept="image/*" data-default-file="{{ isset($data) && $data->image ? asset($data->image) : '' }}">
+                                <input type="file" class="form-control dropify" id="image" name="image"
+                                    accept="image/*"
+                                    data-default-file="{{ isset($data) && $data->image ? asset($data->image) : '' }}">
                                 <div class="form-check">
-                                    <input type="checkbox" class="remove-checkbox" id="remove_icon" name="remove" value="1" hidden>
+                                    <input type="checkbox" class="remove-checkbox" id="remove_icon" name="remove"
+                                        value="1" hidden>
                                 </div>
                                 <div class="error text-danger"></div>
                             </div>
@@ -136,7 +145,8 @@
 
                     <fieldset class="name mb-14">
                         <div class="body-title mb-10">Category Name</div>
-                        <input class="flex-grow" type="text" placeholder="Name" name="name" value="{{ $data->name }}">
+                        <input class="flex-grow" type="text" placeholder="Name" name="name"
+                            value="{{ $data->name }}">
                         <div class="error text-danger"></div>
                     </fieldset>
 
@@ -144,9 +154,9 @@
                         <div class="body-title mb-10">Parent Category</div>
                         <select name="parent_id" class="select2">
                             <option value="">Select a parent category</option>
-                            @foreach($categories as $cat)
-                                <option value="{{ $cat->id }}" {{ $data->parent_id == $cat->id ? 'selected' : '' }} {{ $data->id == $cat->id ? 'disabled' : '' }}>
-                                    {{ $cat->name }}
+                            @foreach ($categories as $key => $category)
+                                <option value="{{ $key }}" {{ $data->category_key == $key ? 'selected' : '' }}>
+                                    {{ $category['name'] }}
                                 </option>
                             @endforeach
                         </select>
@@ -154,19 +164,12 @@
                             <div class="error text-danger">{{ $message }}</div>
                         @enderror
                     </fieldset>
-
-                    <fieldset class="name mb-14">
-                        <div class="body-title mb-10">Description</div>
-                        <textarea name="description" placeholder="Write here...">{{ $data->description }}</textarea>
-                        <div class="error text-danger"></div>
-                    </fieldset>
-
                 </div>
             </div>
 
             <div class="bot " style="justify-content:right;">
                 <button class="tf-button w180 btn-add" type="submit" id="submitBtn">
-                    <span class="btn-text">Save</span>
+                    <span class="btn-text">Save Changes</span>
                     <span class="loader spinner-border spinner-border-sm hidden" role="status" aria-hidden="true"></span>
                 </button>
             </div>
@@ -181,8 +184,8 @@
 
 @push('scripts')
     <script>
-        $(document).ready(function () {
-            $('#addform').on('submit', function (e) {
+        $(document).ready(function() {
+            $('#addform').on('submit', function(e) {
                 e.preventDefault();
                 $('.error').html('');
                 $('.error_border').removeClass('error_border');
@@ -201,7 +204,7 @@
                     data: formData,
                     processData: false,
                     contentType: false,
-                    success: function (response) {
+                    success: function(response) {
                         // Reset button
                         $('#submitBtn .btn-text').text('Save Changes');
                         $('#submitBtn .loader').addClass('hidden');
@@ -213,7 +216,7 @@
                             ajaxMessage(response.message, 'success');
                         }
                     },
-                    error: function (xhr) {
+                    error: function(xhr) {
                         $('#submitBtn .btn-text').text('Save Changes');
                         $('#submitBtn .loader').addClass('hidden');
                         $('#submitBtn').prop('disabled', false);
@@ -221,7 +224,7 @@
                         if (xhr.status === 422) {
                             // Validation errors
                             let errors = xhr.responseJSON.errors;
-                            $.each(errors, function (key, val) {
+                            $.each(errors, function(key, val) {
                                 let inputField = $('[name="' + key + '"]');
                                 inputField.addClass('error_border');
                                 inputField.siblings('.error').text(val[0]);
@@ -236,17 +239,15 @@
     </script>
 
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
             var drEvent = $('.dropify').dropify();
-            drEvent.on('dropify.beforeClear', function (event, element) {
+            drEvent.on('dropify.beforeClear', function(event, element) {
                 $(event.target).closest('.col-md-2').find('.remove-checkbox').prop('checked', true);
             });
 
-            $('.dropify').on('change', function () {
+            $('.dropify').on('change', function() {
                 $(this).closest('.col-md-2').find('.remove-checkbox').prop('checked', false);
             });
         });
     </script>
-
 @endpush
-
