@@ -249,6 +249,11 @@ class ProductController extends Controller
 
         $items = Product::with(['user:id,name,avatar'])
             ->where('user_id', $user->id)
+            ->where('status', 1)
+            ->where(function ($q) {
+                $q->whereNull('expire_date')
+                    ->orWhere('expire_date', '>', now());
+            })
             ->get(['id', 'user_id', 'name', 'thumb_image', 'coin']);
 
 

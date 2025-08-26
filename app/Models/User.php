@@ -57,11 +57,18 @@ class User extends Authenticatable implements JWTSubject , MustVerifyEmail
         return [];
     }
 
-
-
     public function sendEmailVerificationNotification()
     {
         Mail::to($this->email)->send(new CustomVerificationEmail($this));
+    }
+
+     public function addresses()
+    {
+        return $this->hasMany(UserAddress::class);
+    }
+
+    public function orders(){
+        return $this->hasMany(Order::class);
     }
 
 }

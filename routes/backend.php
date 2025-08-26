@@ -11,6 +11,8 @@ use App\Http\Controllers\Web\Backend\ProductCatelouge\CategoryController;
 use App\Http\Controllers\Web\Backend\Product\ProductController;
 use App\Http\Controllers\Web\Backend\Product\ProductOption;
 use App\Http\Controllers\Web\Backend\Product\AttributeController;
+use App\Http\Controllers\Web\Backend\Order\DeliveryController;
+use App\Http\Controllers\Web\Backend\Order\OrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,13 +26,6 @@ use App\Http\Controllers\Web\Backend\Product\AttributeController;
 */
 
 use App\Http\Middleware\isAdmin;
-
-    // Route::get('/test', function(){
-    //     return view('emails.custom-verification')->with([
-    //         'verificationUrl' => 1,
-    //         'userName' => 'rahin',
-    //     ]) ;
-    // });
 
     Route::middleware(['auth', isAdmin::class])->prefix('admin')->group(function () {
         // dashboard page route
@@ -55,6 +50,13 @@ use App\Http\Middleware\isAdmin;
         //     Route::get('chat/{id}', 'chat')->name('chat');
         // });
 
+        // order
+        Route::resource('order', OrderController::class);
+        Route::post('view-order', [OrderController::class, 'viewOrder'])->name('view.order');
+        Route::post('order-status', [OrderController::class, 'OrderStatus'])->name('order.status');
+
+        Route::resource('delivery-option', DeliveryController::class);
+        Route::post('/delivery-option/update-status', [DeliveryController::class, 'updateStatus'])->name('delivery-option.status');
 
         Route::resource('category', CategoryController::class);
         Route::post('/category/update-status', [CategoryController::class, 'updateStatus'])->name('category.status');
@@ -62,13 +64,12 @@ use App\Http\Middleware\isAdmin;
         Route::post('/category/toggle-menu-featured', [CategoryController::class, 'toggleMenuFeatured'])->name('category.toggleMenuFeatured');
 
         Route::resource('attribute', controller: AttributeController::class);
-        
+
          // product management
         Route::resource('product', ProductController::class);
         Route::get('/get-subcategories/{category_id}', [CategoryController::class, 'getSubcategories']);
         Route::post('/product/update-status', [ProductController::class, 'updateStatus'])->name('product.status');
         Route::post('/product/toggle-featured', [ProductController::class, 'toggleFeatured'])->name('product.toggleFeatured');
-
 
         // settings
         Route::resource('system-setting', SystemSettingController::class);

@@ -111,6 +111,30 @@
                         </ul>
                     </li>
 
+                    <div class="center-heading" style="margin-top: 15px;">Order Management</div>
+
+                    <li class="menu-item has-children {{ request()->routeIs('order*') ? 'active' : '' }}">
+                        <a href="javascript:void(0);" class="menu-item-button">
+                            <div class="icon"><i class="icon-file-plus"></i></div>
+                            <div class="text">Orders</div>
+                        </a>
+                        <ul class="sub-menu">
+                            <li class="sub-menu-item">
+                                <a href="{{ route('order.index') }}" class="{{ request()->routeIs('order.index') ? 'active' : '' }}">
+                                    <div class="text">Order List</div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                     <ul class="menu-list">
+                        <li class="menu-item">
+                            <a href="{{ route('delivery-option.index') }}" class="{{ request()->routeIs('delivery-option*') ? 'active' : '' }}">
+                                <div class="icon"><i class="icon-tag"></i></div>
+                                <div class="text">Delivery Option</div>
+                            </a>
+                        </li>
+                    </ul>
 
                     <div class="center-heading" style="margin-top: 15px;">System Settings</div>
                     <li class="menu-item has-children {{ request()->routeIs('system-setting*') ? 'active' : '' }}">

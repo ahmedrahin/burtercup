@@ -4,10 +4,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\Auth\AuthController;
 use App\Http\Controllers\API\Auth\ResetPasswordController;
-use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\API\User\UserController;
 use App\Http\Controllers\API\Order\WishlistController;
-use App\Http\Controllers\API\UserMessage;
+use App\Http\Controllers\API\User\UserMessage;
 use App\Http\Controllers\API\Product\ProductController;
+use App\Http\Controllers\API\Order\CartController;
+use App\Http\Controllers\API\User\UserAddressController;
+use App\Http\Controllers\API\Order\OrderController;
 use App\Models\User;
 use Illuminate\Auth\Events\Verified;
 
@@ -83,6 +86,7 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
     Route::post('onboard-two', [AuthController::class, 'onboard_two']);
     Route::post('share', [UserMessage::class, 'share']);
 
+    // product
     Route::controller(ProductController::class)->group(function(){
         Route::post('add-product', 'addProduct');
         Route::get('selected-categories', 'selectedCategories');
@@ -111,6 +115,37 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
         Route::post('add-wishlist/{id}', 'addWishlist');
         Route::get('wishlist-list', 'wishlistList');
         Route::delete('delete-wishlist/{id}', 'deleteWishlist');
+    });
+
+    // cart
+    Route::controller(CartController::class)->group(function(){
+        Route::post('add-cart/{id}', 'AddCart');
+        Route::get('cart-list', 'CartList');
+        Route::post('update-quanitty/{id}/{value?}', 'updateQuantity');
+        Route::post('delete-cart/{id}', 'deleteCart');
+        Route::post('remove-all', 'removeAll');
+        Route::get('/order-summary', 'orderSummary');
+        Route::post('/apply-coupon', 'applyCoupon');
+        Route::post('/remove-coupon', 'removeCoupon');
+    });
+
+    // user address
+    Route::controller(UserAddressController::class)->group(function () {
+        Route::post('/create-new-address', 'newAddress');
+        Route::get('/my-addresses', 'myAddresses');
+        Route::post('/make-defualt', 'makeDefault');
+        Route::get('/address/edit/{id}', 'edit');
+        Route::post('/address/update', 'updateAddress');
+        Route::delete('/address/delete/{id}', 'deleteAddress');
+    });
+
+     // order
+    Route::controller(OrderController::class)->group(function () {
+        Route::post('/place-order', 'placeOrder');
+        Route::get('/delivery-options', 'DeliveryOption');
+        Route::get('/order-history', 'orderHistroy');
+        Route::get('/order-track/{id}', 'orderTrack');
+        Route::get('/order-invoice/{id}', 'orderInvoice');
     });
 
 });

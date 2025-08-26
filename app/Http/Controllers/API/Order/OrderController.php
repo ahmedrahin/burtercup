@@ -12,7 +12,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Cart;
 use App\Models\OrderItem;
-use App\Models\AppliedCoupon;
 use App\Helpers\Helper;
 use App\Models\SavedPrescribtion;
 use App\Models\DeliveryOption;
@@ -35,44 +34,19 @@ class OrderController extends Controller
     {
         $user = auth('api')->user();
 
-        $cartItems = Cart::with('cartOptions:id,cart_id,type_glass_price,color_glass_price,accessorie_price,extended_price')
-            ->where('user_id', $user->id)
-            ->get();
+        $cartItems = Cart::where('user_id', $user->id)->get();
 
-        $cartTotal = $cartItems->sum(function ($item) {
-            $productTotal = $item->price * $item->quantity;
-
-            if ($item->cartOptions) {
-                // Add the price for type of glass and color of glass
-                $productTotal += $item->cartOptions->type_glass_price ?? 0;
-                $productTotal += $item->cartOptions->color_glass_price ?? 0;
-
-                if ($item->cartOptions->accessorie_price) {
-                    $accessoriePrice = $item->cartOptions->accessorie_price;
-                    $productTotal += array_sum($accessoriePrice);
-                }
-
-                if ($item->cartOptions->extended_price) {
-                    $extended_price = $item->cartOptions->extended_price;
-                    $productTotal += array_sum($extended_price);
-                }
-
-            }
-
-            return $productTotal;
+        // Sum up price * quantity for each item
+        $finalTotal = $cartItems->sum(function ($item) {
+            return $item->price * $item->quantity;
         });
 
-        // Subtract the discount amount
-        $finalTotal = $cartTotal - ($this->discountAmount ?? 0);
-
-        return number_format($finalTotal, 2, '.', '');
+        return $finalTotal;
     }
 
     public function placeOrder(Request $request)
     {
         $user = auth('api')->user();
-        $appliedCoupon = AppliedCoupon::where('user_id', $user->id)->first();
-
         if (!$user) {
             return response()->json([
                 'success' => false,
@@ -89,20 +63,22 @@ class OrderController extends Controller
             ], 400);
         }
 
+        if($user->coins < $this->getTotalAmount()){
+            return response()->json([
+                'success' => false,
+                'message' => 'You do not have enough coins to place this order.'
+            ], 400);
+        }
+
+
         $rules = [
-            'payment_method' => 'required',
-            'phone' => 'required|numeric',
+            // 'phone' => 'required|numeric',
             'address' => 'required',
             'city' => 'required',
-            'state' => 'required',
-            'country' => 'required',
+            'zip_code' => 'required',
         ];
 
-        $messages = [
-            'payment_method.required' => 'Please select a payment method.',
-        ];
-
-        $validation = Validator::make($request->all(), $rules, $messages);
+        $validation = Validator::make($request->all(), $rules);
 
         if ($validation->fails()) {
             return response()->json([
@@ -114,9 +90,7 @@ class OrderController extends Controller
         $numbers = (string) rand(1000, 9999);
         $orderId = str_shuffle($letters . $numbers);
 
-        $subtotal = $this->getTotalAmount();
-        $discount = $appliedCoupon ? $appliedCoupon->discount_amount : 0;
-        $grandTotal = $subtotal - $discount + $request->delivery_option_price ?? 0;
+        $subtotal = $this->getTotalAmount() + $request->delivery_option_price ?? 0;
 
         // Create the order
         $order = Order::create([
@@ -124,7 +98,7 @@ class OrderController extends Controller
             'user_id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'phone' => $request->phone,
+            'phone' => $request->phone ?? $user->phone,
             'order_date' => Carbon::now()->format('Y-m-d H:i:s'),
             'note' => $request->note ?? null,
             'address' => $request->address ?? null,
@@ -132,15 +106,12 @@ class OrderController extends Controller
             'state' => $request->state ?? null,
             'country' => $request->country ?? null,
             'zip_code' => $request->zip_code ?? null,
-            'shipping_address' => trim(($request->address ?? '') . ', ' . ($request->city ?? '') . ', ' . ($request->state ?? '') . ', ' . ($request->country ?? '')),
-            'payment_method' => $request->payment_method,
-            'order_source' => 'website',
+            'shipping_address' => trim(($request->address ?? '') . ', ' . ($request->city ?? '') . ', ' . ($request->state ?? '') . ', ' . ($request->zip_code ?? '')),
+            'order_source' => 'app',
             'subtotal' => $subtotal,
-            'grand_total' => $grandTotal,
+            'grand_total' => $subtotal,
             'user_type' => 'customer',
             'transaction_id' => null,
-            'cupon_code' => $appliedCoupon->coupon_code ?? '',
-            'coupon_discount' => $discount,
             'delivery_option_id' => $request->delivery_option_id ?? null,
             'delivery_option_price' => $request->delivery_option_price ?? null,
         ]);
@@ -152,60 +123,20 @@ class OrderController extends Controller
                 'quantity' => $item->quantity,
                 'price' => $item->price,
             ]);
-
-            if ($item->cartOptions) {
-                $item->cartOptions->update([
-                    'order_item_id' => $orderItem->id
-                ]);
-            }
-
-            if ($item->cartOptions->upload_image) {
-                $imagePath = $item->cartOptions->upload_image;
-                $this->savedPrescriptionStore($imagePath);
-            }
-
         }
 
         // Clear the cart after order placed
         Cart::where('user_id', $user->id)->delete();
 
-        if ($appliedCoupon) {
-            $appliedCoupon->delete();
-        }
+        // user coin exist
+        $user->update([
+            'coins' => $user->coins - $subtotal
+        ]);
 
         return response()->json([
             'success' => true,
             'message' => 'Order placed successfully',
             'order' => $order
-        ], 200);
-    }
-
-    public function savedPrescriptionStore($imagePath)
-    {
-        $user = auth('api')->user();
-
-        if (!$user) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Unauthorized',
-                'code' => 401,
-            ], 401);
-        }
-
-        $data = new SavedPrescribtion();
-        if ($imagePath) {
-            $data->image = $imagePath;
-        }
-
-        $data->user_id = $user->id;
-        $data->name = 'prescription_' . now()->format('m/d/Y');
-
-        $data->save();
-
-        return response()->json([
-            'success' => true,
-            'code' => 200,
-            'message' => 'Successfully added',
         ], 200);
     }
 
