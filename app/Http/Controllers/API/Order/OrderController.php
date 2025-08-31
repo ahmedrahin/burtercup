@@ -15,6 +15,8 @@ use App\Models\OrderItem;
 use App\Helpers\Helper;
 use App\Models\SavedPrescribtion;
 use App\Models\DeliveryOption;
+use Illuminate\Support\Facades\DB;
+use App\Models\OrderHistory;
 
 class OrderController extends Controller
 {
@@ -112,6 +114,7 @@ class OrderController extends Controller
             'grand_total' => $subtotal,
             'user_type' => 'customer',
             'transaction_id' => null,
+            'payment_method' => 'Cash on Delivery',
             'delivery_option_id' => $request->delivery_option_id ?? null,
             'delivery_option_price' => $request->delivery_option_price ?? null,
         ]);
@@ -133,6 +136,13 @@ class OrderController extends Controller
             'coins' => $user->coins - $subtotal
         ]);
 
+         // add order history
+        OrderHistory::create([
+            'order_id' => $order->id,
+            'status' => 'pending',
+            'note' => 'Order placed, waiting for processing.',
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'Order placed successfully',
@@ -152,20 +162,27 @@ class OrderController extends Controller
             ], 401);
         }
 
-        $orders = Order::withCount('orderItems')
-            ->where('user_id', $user->id)
-            ->latest()
-            ->get();
+
+        $orders = Order::withCount(['orderItems as orderItemsCount'])
+                ->with(['delivery:id,name'])
+                ->where('user_id', $user->id)
+                ->select(['id', 'order_id', 'delivery_status', 'delivery_option_id', DB::raw('(select count(*) from order_items where order_items.order_id = orders.id) as orderItemsCount')])
+                ->latest()
+                ->get();
+
+        // group by delivery_status
+        $groupedOrders = $orders->groupBy('delivery_status');
 
         return response()->json([
             'success' => true,
-            'code' => 200,
+            'code'    => 200,
             'message' => 'order history',
-            'data' => $orders,
-        ], 200);
+            'data'    => $groupedOrders
+        ]);
+
     }
 
-    public function orderTrack(Request $request, $id)
+   public function orderDetails(Request $request, $id)
     {
         $user = auth('api')->user();
 
@@ -176,7 +193,16 @@ class OrderController extends Controller
             ], 401);
         }
 
-        $order = Order::where('order_id', $id)->first();
+        $order = Order::with([
+                'orderItems.product' => function ($query) {
+                            $query->select('id', 'name', 'thumb_image');
+                        },
+                        'delivery:id,name'
+                    ])
+                    ->where('order_id', $id)
+                    ->where('user_id', $user->id)
+                    ->first();
+
 
         if (!$order) {
             return response()->json([
@@ -185,30 +211,46 @@ class OrderController extends Controller
             ], 404);
         }
 
-        $deliveryStatuses = [
-            'pending',
-            'confirmed',
-            'processing',
-            'ready to ship',
-            'delivered',
-            'cancel'
-        ];
+        return response()->json([
+            'success' => true,
+            'code'    => 200,
+            'message' => 'order details',
+            'data'    => $order
+        ]);
+    }
 
-        $tracking = [];
-        foreach ($deliveryStatuses as $status) {
-            $tracking[$status] = $order->delivery_status === $status;
+
+   public function orderTrack(Request $request, $id)
+    {
+        $user = auth('api')->user();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found'
+            ], 401);
         }
+
+        $order = Order::where('order_id', $id)->where('user_id', $user->id)->first();
+
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order not found'
+            ], 404);
+        }
+
+        $history = OrderHistory::where('order_id', $order->id)->get()->select(['order_id', 'status', 'note', 'changed_at']);
 
         return response()->json([
             'success' => true,
-            'message' => 'Order status fetched',
-            'order_date' => $order->order_date,
-            'status_date' => $order->order_status_date,
-            'current_status' => $order->delivery_status,
-            'tracking' => $tracking
+            'code' => 200,
+            'message' => 'Order tracking details',
+            'order' => $order->order_id,
+            'data' => $history
         ]);
-
     }
+
 
     public function orderInvoice($id)
     {

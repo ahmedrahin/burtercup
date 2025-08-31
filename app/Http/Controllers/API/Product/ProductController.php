@@ -11,8 +11,7 @@ use App\Models\Wishlist;
 use App\Models\SubCategory;
 use App\Models\SearchHistory;
 use App\Models\ProductSize;
-use Illuminate\Support\Str;
-use App\Helpers\Helper;
+
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;

@@ -22,6 +22,11 @@ class Order extends Model
         return $this->belongsTo(DeliveryOption::class, 'delivery_option_id' );
     }
 
+    public function histories()
+    {
+        return $this->hasMany(OrderHistory::class);
+    }
+
       protected $casts = [
         'user_id' => 'integer',
     ];

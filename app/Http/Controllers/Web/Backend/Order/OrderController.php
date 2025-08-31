@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\OrderHistory;
 use Illuminate\Support\Str;
 use Yajra\DataTables\DataTables;
 use Carbon\Carbon;
@@ -146,9 +147,57 @@ class OrderController extends Controller
 
     public function OrderStatus(Request $request)
     {
-        Order::find($request->order_id)->update(['delivery_status' => $request->status, 'order_status_date' => Carbon::now()->format('Y-m-d H:i:s')]);
+        $order = Order::with('orderItems.product')->find($request->order_id);
 
-        return response()->json(['message' => 'Order status updated successfully.']);
+        if (!$order) {
+            return response()->json(['message' => 'Order not found.'], 404);
+        }
+
+        $newStatus = $request->status;
+        $oldStatus = $order->delivery_status;
+        $restoreStatuses = ['canceled', 'fake'];
+
+        // Moving INTO canceled/fake → restore stock
+        if (in_array($newStatus, $restoreStatuses) && !in_array($oldStatus, $restoreStatuses)) {
+            foreach ($order->orderItems as $item) {
+                if ($item->product) {
+                    $item->product->increment('quantity', $item->quantity);
+                }
+            }
+        }
+
+        // Moving OUT of canceled/fake → reduce stock again
+        if (in_array($oldStatus, $restoreStatuses) && !in_array($newStatus, $restoreStatuses)) {
+            foreach ($order->orderItems as $item) {
+                if ($item->product && $item->product->quantity >= $item->quantity) {
+                    $item->product->decrement('quantity', $item->quantity);
+                }
+            }
+        }
+
+        // Update order status & timestamp
+        $order->update([
+            'delivery_status' => $newStatus,
+            'order_status_date' => Carbon::now()->format('Y-m-d H:i:s')
+        ]);
+
+        // Add order history note
+        $statusNotes = [
+            'pending' => 'Order is now pending.',
+            'confirmed' => 'Order confirmed.',
+            'canceled' => 'Order has been canceled.',
+            'fake' => 'Order marked as fake.',
+        ];
+
+        $note = $statusNotes[$newStatus] ?? "Delivery status changed to {$newStatus}.";
+
+        OrderHistory::create([
+            'order_id' => $order->id,
+            'status' => $newStatus,
+            'note' => $note,
+        ]);
+
+        return response()->json(['message' => $note, 'success' => true]);
     }
 
 

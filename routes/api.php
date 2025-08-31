@@ -146,6 +146,7 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
         Route::get('/order-history', 'orderHistroy');
         Route::get('/order-track/{id}', 'orderTrack');
         Route::get('/order-invoice/{id}', 'orderInvoice');
+        Route::get('/order-details/{id}', 'orderDetails');
     });
 
 });

@@ -256,6 +256,7 @@
                     <option value="processing" {{ $data->delivery_status == 'processing' ? 'selected' : '' }} >Processing</option>
                     <option value="ready to ship" {{ $data->delivery_status == 'ready to ship' ? 'selected' : '' }} >Ready to ship</option>
                     <option value="delivered" {{ $data->delivery_status == 'delivered' ? 'selected' : '' }}>Delivered</option>
+                    <option value="canceled" {{ $data->delivery_status == 'canceled' ? 'selected' : '' }}>Canceled</option>
                 </select>
             </div>
         </div>
