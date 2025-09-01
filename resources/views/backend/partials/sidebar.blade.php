@@ -137,6 +137,25 @@
                     </ul>
 
                     <div class="center-heading" style="margin-top: 15px;">System Settings</div>
+                    <li class="menu-item has-children {{ request()->routeIs('faq*') ? 'active' : '' }}">
+                        <a href="javascript:void(0);" class="menu-item-button">
+                            <div class="icon"><i class="icon-help-circle"></i></div>
+                            <div class="text">FAQ</div>
+                        </a>
+                        <ul class="sub-menu">
+                            <li class="sub-menu-item">
+                                <a href="{{ route('faq.index') }}" class="{{ request()->routeIs('faq.index') ? 'active' : '' }}">
+                                    <div class="text">FAQ List</div>
+                                </a>
+                            </li>
+                            <li class="sub-menu-item">
+                                <a href="{{ route('faq.create') }}" class="{{ request()->routeIs('faq.create') ? 'active' : '' }}">
+                                    <div class="text">Create new FAQ</div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    
                     <li class="menu-item has-children {{ request()->routeIs('system-setting*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon"><i class="icon-settings"></i></div>

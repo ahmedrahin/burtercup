@@ -11,6 +11,7 @@ use App\Http\Controllers\API\Product\ProductController;
 use App\Http\Controllers\API\Order\CartController;
 use App\Http\Controllers\API\User\UserAddressController;
 use App\Http\Controllers\API\Order\OrderController;
+use App\Http\Controllers\Web\Backend\FaqController;
 use App\Models\User;
 use Illuminate\Auth\Events\Verified;
 
@@ -147,6 +148,14 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
         Route::get('/order-track/{id}', 'orderTrack');
         Route::get('/order-invoice/{id}', 'orderInvoice');
         Route::get('/order-details/{id}', 'orderDetails');
+
+        // app feedback after order
+        Route::post('feedback', 'feedback');
+    });
+
+    Route::controller(FaqController::class)->group(function () {
+        Route::get('/faq-list', 'faqList');
+        Route::get('/faq-search', 'faqSearch');
     });
 
 });

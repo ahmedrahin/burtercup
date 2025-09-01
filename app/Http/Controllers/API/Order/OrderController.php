@@ -17,6 +17,7 @@ use App\Models\SavedPrescribtion;
 use App\Models\DeliveryOption;
 use Illuminate\Support\Facades\DB;
 use App\Models\OrderHistory;
+use App\Models\Feedback;
 
 class OrderController extends Controller
 {
@@ -219,7 +220,6 @@ class OrderController extends Controller
         ]);
     }
 
-
    public function orderTrack(Request $request, $id)
     {
         $user = auth('api')->user();
@@ -251,7 +251,6 @@ class OrderController extends Controller
         ]);
     }
 
-
     public function orderInvoice($id)
     {
         $order = Order::where('order_id', $id)->first();
@@ -280,6 +279,40 @@ class OrderController extends Controller
             'success' => true,
             'message' => 'Order invoice retrieved successfully',
             'order' => $orderData,
+        ]);
+
+    }
+
+    public function feedback(Request $request){
+        $user = auth('api')->user();
+
+        $validator = Validator::make($request->all(), [
+            'rating' => 'required',
+            'coment' => 'required',
+            'coment_2' => 'required',
+            'coment_3' => 'required',
+            'disappointed' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => $validator->errors()->all(),
+                'status' => false,
+            ], 400);
+        }
+
+        Feedback::create([
+            'user_id' => $user->id,
+            'rating' => $request->rating,
+            'coment' => $request->coment,
+            'coment_2' => $request->coment_2,
+            'coment_3' => $request->coment_3,
+            'disappointed' => $request->disappointed,
+        ]);
+
+         return response()->json([
+            'success' => true,
+            'message' => 'Thanks for your feedback',
         ]);
 
     }

@@ -13,6 +13,7 @@ use App\Http\Controllers\Web\Backend\Product\ProductOption;
 use App\Http\Controllers\Web\Backend\Product\AttributeController;
 use App\Http\Controllers\Web\Backend\Order\DeliveryController;
 use App\Http\Controllers\Web\Backend\Order\OrderController;
+use App\Http\Controllers\Web\Backend\FaqController;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,6 +65,10 @@ use App\Http\Middleware\isAdmin;
         Route::post('/category/toggle-menu-featured', [CategoryController::class, 'toggleMenuFeatured'])->name('category.toggleMenuFeatured');
 
         Route::resource('attribute', controller: AttributeController::class);
+
+        // faq
+        Route::resource('/faq', FaqController::class);
+        Route::post('/update-faq-status', [FaqController::class, 'updateStatus'])->name('faq.status');
 
          // product management
         Route::resource('product', ProductController::class);
