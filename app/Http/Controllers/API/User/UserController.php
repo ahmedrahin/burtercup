@@ -65,6 +65,86 @@ class UserController extends Controller
         ]);
     }
 
+    public function updateEmail(Request $request){
+         $user = auth('api')->user();
+
+        // Check if the user is authenticated
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized. Please log in first to update your profile.',
+                'code' => 401,
+            ], 401);
+        }
+
+        // Validate input fields
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|unique:users,email,' . $user->id,
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors()->first(),
+                'code' => 422,
+            ], 422);
+        }
+
+
+        $user->email = $request->input('email');
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'status' => 200,
+            'message' => 'E-mail updated successfully.',
+            'data' => [
+                'email' => $user->email,
+            ],
+        ]);
+
+    }
+
+    public function updatePhone(Request $request){
+         $user = auth('api')->user();
+
+        // Check if the user is authenticated
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized. Please log in first to update your profile.',
+                'code' => 401,
+            ], 401);
+        }
+
+        // Validate input fields
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors()->first(),
+                'code' => 422,
+            ], 422);
+        }
+
+
+        $user->phone = $request->input('phone');
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'status' => 200,
+            'message' => 'Phone Number updated successfully.',
+            'data' => [
+                'phone' => $user->phone,
+            ],
+        ]);
+
+    }
+
     public function uploadAvatar(Request $request)
     {
         $user = auth()->user();

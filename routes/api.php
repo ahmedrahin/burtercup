@@ -37,11 +37,11 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('/verify-otp', 'verifyOtp');
 });
 
-
 Route::controller(ResetPasswordController::class)->group(function () {
     Route::post('forgot-password', 'forgotPassword');
     Route::post('reset-password', 'resetPassword');
     Route::post('verify-otp-password', 'verifyOtp');
+    Route::post('resend-otp-password', 'resendOtp');
 });
 
 
@@ -87,8 +87,19 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
     Route::post('onboard-two', [AuthController::class, 'onboard_two']);
     Route::post('share', [UserMessage::class, 'share']);
 
+    // user
+    Route::controller(UserController::class)->group(function () {
+        Route::get('/profile', 'getProfile');
+        Route::post('/profile/update', 'updateProfile');
+        Route::post('/profile/update-avatar', 'uploadAvatar');
+        Route::post('/update-password', 'changePassword');
+        Route::delete('/delete-profile', 'deleteAccount');
+        Route::post('/email/update', 'updateEmail');
+        Route::post('/phone/update', 'updatePhone');
+    });
+
     // product
-    Route::controller(ProductController::class)->group(function(){
+    Route::controller(ProductController::class)->group(function () {
         Route::post('add-product', 'addProduct');
         Route::get('selected-categories', 'selectedCategories');
         Route::get('product-options/{id}', 'productOptions');
@@ -119,7 +130,7 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
     });
 
     // cart
-    Route::controller(CartController::class)->group(function(){
+    Route::controller(CartController::class)->group(function () {
         Route::post('add-cart/{id}', 'AddCart');
         Route::get('cart-list', 'CartList');
         Route::post('update-quanitty/{id}/{value?}', 'updateQuantity');
@@ -140,7 +151,7 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
         Route::delete('/address/delete/{id}', 'deleteAddress');
     });
 
-     // order
+    // order
     Route::controller(OrderController::class)->group(function () {
         Route::post('/place-order', 'placeOrder');
         Route::get('/delivery-options', 'DeliveryOption');

@@ -32,7 +32,7 @@ class AuthController extends Controller
             'first_name'          => 'required|string|max:255',
             'last_name'          => 'required|string|max:255',
             'email'         => 'required|string|email|max:255|unique:users',
-            'password'      => 'required|string|confirmed|min:6',
+            'password'      => 'required|string|confirmed|min:8',
             'phone'         => 'nullable|string|max:15',
         ]);
 
@@ -232,25 +232,12 @@ class AuthController extends Controller
 
         try {
             $user = User::where('email', $request->email)->first();
-
-            // Generate new OTP
-            //$otp = rand(100000, 999999);
-            $otp = rand(1000, 9999);
-            $user->otp = $otp;
-            $user->otp_expiration = Carbon::now()->addMinutes(15);
-            $user->save();
-
-            // Send OTP via email
-            Mail::send('api.emails.otp-reg', ['otp' => $otp], function ($message) use ($user) {
-                $message->to($user->email);
-                $message->subject('Your Registration OTP');
-            });
+            $user->sendEmailVerificationNotification();
 
             return response()->json([
                 'success' => true,
                 'code' => 200,
-                'message' => 'A new OTP has been sent to your email.',
-                'otp'     => $otp,
+                'message' => 'A new verify link sent',
             ], 200);
         } catch (Exception $e) {
             return response()->json([
@@ -338,7 +325,6 @@ class AuthController extends Controller
              'onboard_sec' => $user->onboard_sec ? true : false,
          ]);
      }
-
 
      public function logout(): JsonResponse
     {

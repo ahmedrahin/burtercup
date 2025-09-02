@@ -38,7 +38,8 @@ class UserMessage extends Controller
 
         Message::create([
             'user_id' => $user->id,
-            'message' => $request->message
+            'message' => $request->message,
+            'subject' => $request->subject,
         ]);
 
         return response()->json([

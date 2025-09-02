@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
+use Exception;
 
 class ResetPasswordController extends Controller
 {
@@ -48,7 +49,7 @@ class ResetPasswordController extends Controller
         $otp = rand(100000, 999999); // Generate 6-digit OTP
         $user = User::where('email', $request->email)->first();
         $user->otp = $otp;
-        $user->otp_expiration = now()->addMinutes(30);
+        $user->otp_expiration = now()->addMinutes(15);
         $user->save();
 
         // Send OTP via email
@@ -109,9 +110,9 @@ class ResetPasswordController extends Controller
     public function resetPassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'reset_token' => 'required|string',
-            'new_password' => 'required|string|min:6|confirmed',
-            'new_password_confirmation' => 'required|string|min:6|same:new_password',
+            'email' => 'required|email',
+            'new_password' => 'required|string|min:8|confirmed',
+            'new_password_confirmation' => 'required|string|min:8|same:new_password',
         ]);
 
         if ($validator->fails()) {
@@ -122,7 +123,7 @@ class ResetPasswordController extends Controller
             ], 422);
         }
 
-       $user = User::where('reset_token', $request->reset_token)->first();
+       $user = User::where('email', $request->email)->first();
 
         if (!$user) {
             return response()->json([
@@ -133,7 +134,7 @@ class ResetPasswordController extends Controller
         }
 
         $user->password = Hash::make($request->new_password);
-        $user->reset_token = null; // Clear reset token after successful password reset
+        $user->reset_token = null;
         $user->save();
 
         return response()->json([
@@ -141,5 +142,48 @@ class ResetPasswordController extends Controller
             'message' => 'Password reset successfully.',
             'code' => 200,
         ], 200);
+    }
+
+    public function resendOtp(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|string|email|exists:users,email',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first(),
+            ], 400);
+        }
+
+        try {
+            $user = User::where('email', $request->email)->first();
+
+            // Generate new OTP
+            $otp = rand(100000, 999999);
+            $user->otp = $otp;
+            $user->otp_expiration = Carbon::now()->addMinutes(15);
+            $user->save();
+
+            // Send OTP via email
+            Mail::send('api.emails.otp-reg', ['otp' => $otp], function ($message) use ($user) {
+                $message->to($user->email);
+                $message->subject('Your Registration OTP');
+            });
+
+            return response()->json([
+                'success' => true,
+                'code' => 200,
+                'message' => 'A new OTP has been sent to your email.',
+                'otp'     => $otp,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while resending OTP.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
