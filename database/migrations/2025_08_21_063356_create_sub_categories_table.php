@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('slug')->nullable();
-            $table->string('category_key');
+            $table->string('category_key')->nullable();
+            $table->string('category_id')->nullable();
             $table->text('image')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->boolean('is_featured')->default(false);

@@ -139,6 +139,7 @@ class UserAddressController extends Controller
         return response()->json([
             'success' => true,
             'code' => 200,
+                'data' => $address,
             'message' => 'Default address updated successfully.',
         ]);
     }

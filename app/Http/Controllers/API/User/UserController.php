@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class UserController extends Controller
 {
@@ -273,10 +274,33 @@ class UserController extends Controller
         }
 
         $user->delete();
+         JWTAuth::invalidate(JWTAuth::getToken());
 
         return response()->json([
             'success' => true,
             'message' => 'Your account has been deleted!',
+            'status' => 200,
+        ]);
+    }
+
+    public function inactiveAccount(){
+        $user = auth('api')->user();
+
+        // Check if the user is authenticated
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized. Please log in first to access your profile.',
+                'code' => 401,
+            ], 401);
+        }
+
+        $user->update(['status' => 'inactive']);
+         JWTAuth::invalidate(JWTAuth::getToken());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Your account has been inactive now!',
             'status' => 200,
         ]);
     }

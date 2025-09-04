@@ -94,6 +94,7 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
         Route::post('/profile/update-avatar', 'uploadAvatar');
         Route::post('/update-password', 'changePassword');
         Route::delete('/delete-profile', 'deleteAccount');
+        Route::post('/inactive-profile', 'inactiveAccount');
         Route::post('/email/update', 'updateEmail');
         Route::post('/phone/update', 'updatePhone');
     });

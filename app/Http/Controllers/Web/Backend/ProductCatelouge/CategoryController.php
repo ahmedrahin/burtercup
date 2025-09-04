@@ -54,7 +54,10 @@ class CategoryController extends Controller
                 })
 
                 ->addColumn('parent_category', function ($row) {
-                    return $row->category_name;
+                    $categories = config('categories');
+                    $parent = collect($categories)->firstWhere('id', $row->category_id);
+
+                    return $parent['name'] ?? '-';
                 })
 
 
@@ -122,7 +125,7 @@ class CategoryController extends Controller
             'name' => $validated['name'],
             'slug' => $slug,
             'image' => $imagePath ?? null,
-            'category_key' => $request->input('parent_id'),
+            'category_id' => $request->parent_id,
         ]);
 
         return response()->json([
@@ -194,7 +197,7 @@ class CategoryController extends Controller
             'name' => $validated['name'],
             'slug' => $slug,
             'image' => $imagePath,
-            'category_key' => $request->input('parent_id'),
+            'category_id' => $request->input('parent_id'),
         ]);
 
         return response()->json([

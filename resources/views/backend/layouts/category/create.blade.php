@@ -170,7 +170,7 @@
                         <select name="parent_id" class="select2">
                             <option value="">Select a parent category</option>
                             @foreach($categories as $key => $category)
-                                <option value="{{ $key }}">{{ $category['name'] }}</option>
+                                <option value="{{ $category['id'] }}">{{ $category['name'] }}</option>
                             @endforeach
                         </select>
                         @error('parent_id')

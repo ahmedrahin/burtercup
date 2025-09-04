@@ -129,6 +129,7 @@ class ResetPasswordController extends Controller
             return response()->json([
                 'status' => false,
                 'error' => 'Invalid or expired reset token.',
+                'data' => $user,
                 'code' => 403,
             ], 403);
         }

@@ -164,7 +164,8 @@ class FaqController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'FAQ list',
-            'data' => $data
+            'data' => $data,
+            'code' => 200,
         ]);
     }
 
@@ -198,7 +199,8 @@ class FaqController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'FAQ list',
-            'data' => $data
+            'data' => $data,
+            'code' => 200,
         ]);
     }
 

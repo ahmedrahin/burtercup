@@ -13,10 +13,11 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Auth\Events\Verified;
 use App\Mail\CustomVerificationEmail;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable implements JWTSubject , MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.

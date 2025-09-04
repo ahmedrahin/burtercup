@@ -11,6 +11,8 @@ use App\Models\Wishlist;
 use App\Models\SubCategory;
 use App\Models\SearchHistory;
 use App\Models\ProductSize;
+use Illuminate\Support\Str;
+use App\Helpers\Helper;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -23,34 +25,68 @@ class ProductController extends Controller
     {
         $user = auth('api')->user();
 
-        $categoryKeys = $user->categories ?? [];
-        $subcategories = SubCategory::whereIn('category_key', $categoryKeys)->get()->groupBy('category_key');
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+
+        $userCategories = $user->categories ?? [];
+
+        if (!is_array($userCategories)) {
+            $userCategories = json_decode($userCategories, true) ?? [];
+        }
+
+        if (empty($userCategories)) {
+            return response()->json([
+                'status' => true,
+                'data' => [],
+            ], 200);
+        }
 
         $data = [];
 
-        foreach ($categoryKeys as $key) {
-            if (!isset(config('categories')[$key])) {
-                continue;
+        foreach ($userCategories as $categoryName) {
+
+            // Convert user category name to snake_case to match config keys
+            $configKey = Str::snake($categoryName);
+
+            // Get category config
+            $categoryConfig = config("categories.$configKey");
+
+            if (!$categoryConfig) {
+                $categoryConfig = [
+                    'id'    => null,
+                    'name'  => $categoryName,
+                    'image' => null,
+                ];
             }
 
-            $categoryConfig = config('categories')[$key];
+            // Fetch subcategories using category_id
+            $subs = SubCategory::where('category_id', $categoryConfig['id'])
+                ->get(['id', 'name', 'image','category_id'])
+                ->map(fn($sub) => [
+                    'id'    => $sub->id,
+                    'name'  => $sub->name,
+                    'image' => $sub->image ? asset($sub->image) : null,
+                    'category_id' => $sub->category_id
+                ]);
 
             $data[] = [
-                'key' => $key,
-                'name' => $categoryConfig['name'],
-                'image' => $categoryConfig['image'] ?? null,
-                'subcategories' => isset($subcategories[$key])
-                    ? $subcategories[$key]->map(fn($sub) => [
-                        'id' => $sub->id,
-                        'name' => $sub->name,
-                    ])->values()
-                    : [],
+                'id'            => $categoryConfig['id'],
+                'key'           => $configKey,
+                'name'          => $categoryConfig['name'],
+                'image'         => $categoryConfig['image'] ? asset($categoryConfig['image']) : null,
+                'subcategories' => $subs,
             ];
         }
 
         return response()->json([
-            'status' => true,
-            'data' => $data,
+            'status'  => true,
+            'code'    => 200,
+            'message' => 'User selected categories with subcategories',
+            'data'    => $data,
         ], 200);
     }
 
@@ -61,7 +97,7 @@ class ProductController extends Controller
             'name' => 'required|string|unique:products,name',
             'quantity' => 'required|min:1',
             'coins' => 'required',
-            'category' => 'required',
+            'category_id' => 'required',
             'image' => 'required|image',
             'condition' => 'required|string'
         ], messages: [
@@ -103,7 +139,7 @@ class ProductController extends Controller
             'is_featured' => $request->is_featured ?? 0,
             'user_id' => auth()->id(),
             'add_source' => 'app',
-            'category' => $request->category,
+            'category_id' => $request->category_id,
             'subcategory_id' => $request->subcategory_id,
             'condition' => $request->condition,
         ];
@@ -128,6 +164,7 @@ class ProductController extends Controller
 
         return response()->json([
             'status' => true,
+            'code' => 200,
             'message' => 'Product added successfully.',
             'data' => $product,
         ], 200);
@@ -147,6 +184,8 @@ class ProductController extends Controller
 
         return response()->json([
             'status' => true,
+            'code' => 200,
+            'message' => 'Product edit fatched.',
             'data' => $data,
         ], 200);
 
@@ -160,7 +199,7 @@ class ProductController extends Controller
             'name' => 'required|string|unique:products,name,' . $product->id,
             'quantity' => 'required|min:1',
             'coins' => 'required',
-            'category' => 'required',
+            'category_id' => 'required',
             'image' => 'nullable|image',
             'condition' => 'required|string'
         ], messages: [
@@ -202,7 +241,7 @@ class ProductController extends Controller
         $product->status = $request->status ?? $product->status;
         $product->is_new = $request->is_new ?? $product->is_new;
         $product->is_featured = $request->is_featured ?? $product->is_featured;
-        $product->category = $request->category;
+        $product->category_id = $request->category_id;
         $product->condition = $request->condition;
         $product->subcategory_id = $request->subcategory_id ?? $product->subcategory_id;
 
@@ -230,6 +269,7 @@ class ProductController extends Controller
 
         return response()->json([
             'status' => true,
+            'code' => 200,
             'message' => 'Product updated successfully.',
             'data' => $product,
         ], 200);
@@ -266,6 +306,8 @@ class ProductController extends Controller
 
         return response()->json([
             'status' => true,
+             'code' => 200,
+            'message' => 'My items product fatched',
             'data' => $items,
         ], 200);
     }
@@ -287,6 +329,8 @@ class ProductController extends Controller
 
         return response()->json([
             'status' => true,
+            'code' => 200,
+            'message' => 'Product variant or options.',
             'sizes' => $sizes,
             'selectedSizes' => $selectedSizes,
             'productSizes' => $productSizes,
@@ -365,7 +409,9 @@ class ProductController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'Product sizes updated successfully.'
+            'code' => 200,
+            'message' => 'Product sizes updated successfully.',
+            'data' => $sizes
         ], 200);
     }
 
@@ -411,7 +457,7 @@ class ProductController extends Controller
             })->map(function ($variant) {
                 $attribute = AttributeValue::where('size_value', $variant->size_value)->first();
                 return [
-                    'glass_opacity' => $variant->size_value,
+                    'size' => $variant->size_value,
                     'option' => $attribute ? $attribute->option : null
                 ];
             })->unique()->values();
@@ -419,6 +465,7 @@ class ProductController extends Controller
             return response()->json([
                 'success' => true,
                 'code' => 200,
+                'message' => 'product details data',
                 'data' => $product,
                 'sizes' => $sizes,
             ]);
@@ -455,6 +502,7 @@ class ProductController extends Controller
 
         return response()->json([
             'status' => true,
+            'code' => 200,
             'message' => 'Product deleted successfully.',
         ], 200);
     }
@@ -514,14 +562,16 @@ class ProductController extends Controller
         }
 
         $search = $request->get('query');
-        SearchHistory::create([
+        $data = SearchHistory::create([
             'user_id' => $user->id,
             'search_query' => $search
         ]);
 
         return response()->json([
             'status' => true,
+            'code' => 200,
             'message' => 'Search query recorded successfully.',
+            'data' => $data
         ], 200);
 
     }
@@ -541,6 +591,7 @@ class ProductController extends Controller
 
         return response()->json([
             'status' => true,
+            'code' => 200,
             'message' => 'Search history cleared successfully.',
         ], 200);
     }
@@ -608,6 +659,7 @@ class ProductController extends Controller
 
         return response()->json([
             'status' => true,
+            'code' => 200,
             'message' => 'Filtered results',
             'total' => $result->count(),
             'data' => $result,
@@ -681,6 +733,7 @@ class ProductController extends Controller
 
         return response()->json([
             'status' => true,
+            'code' => 200,
             'message' => 'Sorted results',
             'total' => $result->count(),
             'data' => $result,
@@ -689,23 +742,28 @@ class ProductController extends Controller
 
     public function getCategories()
     {
-        $categories = collect(config('categories'))->map(function ($category, $key) {
-            $subcategories = SubCategory::where('category_key', $key)->get(['id', 'category_key', 'name', 'image']);
+         $categories = collect(config('categories'))->map(function ($category, $key) {
+            $subcategories = SubCategory::where('category_id', $category['id'])->get(['id', 'category_id', 'name', 'image']);
 
             return [
+                'id' => $category['id'],
                 'key' => $key,
                 'name' => $category['name'] ?? $category,
                 'image' => $category['image'] ?? null,
+                'subcategories' => $subcategories,
             ];
-        });
+        })->values();
 
         return response()->json([
             'status' => true,
+            'code' => 200,
+            'message' => 'all categories list with subcategories',
             'data' => $categories,
         ], 200);
     }
 
-    public function getSubCategories(Request $request){
+    public function getSubCategories(Request $request)
+    {
         $categoryKey = $request->input('category_key');
 
         if (!$categoryKey) {
@@ -719,11 +777,14 @@ class ProductController extends Controller
 
         return response()->json([
             'status' => true,
+             'code' => 200,
+            'message' => 'get subcategories',
             'data' => $subcategories,
         ]);
     }
 
-    public function productList(){
+    public function productList()
+    {
         $user = auth('api')->user();
 
         if (!$user) {
@@ -760,18 +821,20 @@ class ProductController extends Controller
 
         return response()->json([
             'status' => true,
+             'code' => 200,
             'message' => 'Product list',
             'total' => $result->count(),
             'data' => $result,
         ]);
     }
 
-    public function categoryProductList(Request $request, $category){
+    public function categoryProductList(Request $request, $category)
+    {
         $user = auth('api')->user();
 
         $products = Product::with(['user:id,name,avatar'])
             ->where('status', 1)
-            ->where('category', $category)
+            ->where('category_id', $category)
             ->where(function ($q) {
                 $q->whereNull('expire_date')
                     ->orWhere('expire_date', '>', now());
@@ -797,13 +860,15 @@ class ProductController extends Controller
 
         return response()->json([
             'status' => true,
+            'code' => 200,
             'message' => 'Category product list',
             'total' => $result->count(),
             'data' => $result,
         ]);
     }
 
-    public function subcategoryProductList(Request $request, $subcategory){
+    public function subcategoryProductList(Request $request, $subcategory)
+    {
         $user = auth('api')->user();
 
         $products = Product::with(['user:id,name,avatar'])
@@ -834,6 +899,7 @@ class ProductController extends Controller
 
         return response()->json([
             'status' => true,
+            'code' => 200,
             'message' => 'Subcategory product list',
             'total' => $result->count(),
             'data' => $result,

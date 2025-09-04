@@ -106,7 +106,7 @@ class CartController extends Controller
                 }
 
                 // Create new cart item
-                Cart::create([
+                $data = Cart::create([
                     'user_id' => $user->id,
                     'product_id' => $product->id,
                     'price' => $product->coin,
@@ -116,6 +116,8 @@ class CartController extends Controller
 
             return response()->json([
                 'success' => true,
+                'code' => 200,
+                'data' => $data,
                 'message' => 'Item has been added into cart.',
             ], 200);
 
@@ -174,6 +176,7 @@ class CartController extends Controller
                 'success' => true,
                 'message' => 'Cart items retrieved successfully.',
                 'data'    => $validCartItems->values(),
+                 'code' => 200,
             ], 200);
 
         } catch (Exception $e) {
@@ -230,6 +233,7 @@ class CartController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'cart item deleted.',
+                 'code' => 200,
             ], 200);
 
         } catch (Exception $e) {
@@ -301,6 +305,7 @@ class CartController extends Controller
 
             return response()->json([
                 'success' => true,
+                 'code' => 200,
                 'message' => 'Order summary',
                 'subtotal' => $this->getTotalAmount(),
                 'grand_total' => $this->getTotalAmount() + $shipping - $appliedCoupon->discount_amount,

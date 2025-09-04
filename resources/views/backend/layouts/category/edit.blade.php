@@ -155,7 +155,7 @@
                         <select name="parent_id" class="select2">
                             <option value="">Select a parent category</option>
                             @foreach ($categories as $key => $category)
-                                <option value="{{ $key }}" {{ $data->category_key == $key ? 'selected' : '' }}>
+                                <option value="{{ $category['id'] }}" {{ $data->category_id == $category['id'] ? 'selected' : '' }}>
                                     {{ $category['name'] }}
                                 </option>
                             @endforeach

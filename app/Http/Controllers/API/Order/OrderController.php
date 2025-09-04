@@ -147,7 +147,8 @@ class OrderController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Order placed successfully',
-            'order' => $order
+            'order' => $order,
+            'code' => 200,
         ], 200);
     }
 
@@ -279,6 +280,7 @@ class OrderController extends Controller
             'success' => true,
             'message' => 'Order invoice retrieved successfully',
             'order' => $orderData,
+            'code' => 200,
         ]);
 
     }
@@ -301,7 +303,7 @@ class OrderController extends Controller
             ], 400);
         }
 
-        Feedback::create([
+        $data = Feedback::create([
             'user_id' => $user->id,
             'rating' => $request->rating,
             'coment' => $request->coment,
@@ -313,6 +315,8 @@ class OrderController extends Controller
          return response()->json([
             'success' => true,
             'message' => 'Thanks for your feedback',
+             'code' => 200,
+                'data' => $data,
         ]);
 
     }

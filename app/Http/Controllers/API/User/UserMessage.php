@@ -36,7 +36,7 @@ class UserMessage extends Controller
             ], 422);
         }
 
-        Message::create([
+        $data = Message::create([
             'user_id' => $user->id,
             'message' => $request->message,
             'subject' => $request->subject,
@@ -44,10 +44,11 @@ class UserMessage extends Controller
 
         return response()->json([
             'status' => true,
+            'code' => 200,
+            'data' => $data,
             'message' => 'your message has been sent'
         ], status: 200);
     }
-
 
     public function share(Request $request){
         $user = auth()->user();
@@ -73,6 +74,8 @@ class UserMessage extends Controller
 
         return response()->json([
             'status' => true,
+            'code' => 200,
+            'data' => $user,
             'message' => "you've got 50 more barter coins"
         ], status: 200);
     }

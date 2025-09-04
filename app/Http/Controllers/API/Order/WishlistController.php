@@ -51,7 +51,8 @@ class WishlistController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Product added to your wishlist',
-                    'data' => $data
+                    'data' => $data,
+                    'code' => 200,
                 ], 200);
             }
         } catch (Exception $e) {
@@ -85,7 +86,8 @@ class WishlistController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Wishlist List',
-            'data' => $wishlists
+            'data' => $wishlists,
+            'code' => 200,
         ], 200);
     }
 
@@ -113,6 +115,7 @@ class WishlistController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Wishlist has been removed',
+            'code' => 200,
         ], 200);
     }
 
