@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\User;
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\ConcernReport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -15,7 +16,6 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class UserController extends Controller
 {
-
     public function updateProfile(Request $request)
     {
         // Get the authenticated user
@@ -50,19 +50,16 @@ class UserController extends Controller
         $user->phone = $request->input('phone');
         $user->email = $request->input('email');
         $user->address = $request->input('address');
+        $user->gender = $request->input('gender') ?? $user->gender;
+        $user->date_of_birth = $request->input('date_of_birth') ?? $user->date_of_birth;
+        $user->age = $request->input('date_of_birth') ? Carbon::parse($request->date_of_birth)->age : $user->age ;
         $user->save();
 
         return response()->json([
             'success' => true,
             'status' => 200,
             'message' => 'Profile updated successfully.',
-            'data' => [
-                'name' => $user->name,
-                'last_name' => $user->last_name,
-                'email' => $user->email,
-                'phone' => $user->phone,
-                'address' => $user->address,
-            ],
+            'data' => $user,
         ]);
     }
 
@@ -196,7 +193,6 @@ class UserController extends Controller
         ]);
     }
 
-
     public function getProfile()
     {
         $user = auth('api')->user();
@@ -302,6 +298,71 @@ class UserController extends Controller
             'success' => true,
             'message' => 'Your account has been inactive now!',
             'status' => 200,
+        ]);
+    }
+
+    public function concernReport(Request $request){
+        $user = auth('api')->user();
+
+        // Check if the user is authenticated
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized. Please log in first to access your profile.',
+                'code' => 401,
+            ], 401);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'type' => 'required',
+            'remarks' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors()->all(),
+                'code' => 422,
+            ], 422);
+        }
+
+        $data = ConcernReport::create([
+            'user_id'  => $user->id,
+            'type'     => $request->type,
+            'remarks'  => $request->remarks,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Your account has been deleted!',
+            'status' => 200,
+            'data' => $data
+        ]);
+    }
+
+    public function coinManagement(){
+         $user = auth('api')->user();
+
+        // Check if the user is authenticated
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized. Please log in first to access your profile.',
+                'code' => 401,
+            ], 401);
+        }
+
+        $coins = [
+            'total_balance' => $user->coins ?? 0,
+            'total_sales'   => $user->totalSales() ?? 0,
+            'activities_coins'   => $user->active_coins ?? 0,
+        ];
+
+         return response()->json([
+            'success' => true,
+            'message' => 'user coin management data',
+            'status' => 200,
+            'coins' => $coins
         ]);
     }
 

@@ -97,6 +97,10 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
         Route::post('/inactive-profile', 'inactiveAccount');
         Route::post('/email/update', 'updateEmail');
         Route::post('/phone/update', 'updatePhone');
+        Route::post('/concern-report', 'concernReport');
+
+        // coin management
+        Route::get('/coin-management', 'coinManagement');
     });
 
     // product
@@ -109,7 +113,6 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
         Route::post('product-update/{id}', 'productUpdate');
         Route::get('my-list', 'myItemList');
         Route::get('product-details/{id}', 'productDetails');
-        Route::post('product-details/{id}', 'productDetails');
         Route::post('product-delete/{id}', 'productDelete');
         Route::get('/search-products', 'searchProducts');
         Route::post('/search-query', 'searchQuery');

@@ -16,7 +16,7 @@ return [
         'name'  => 'Electronics',
         'image' => 'uploads/category/electronics.png',
     ],
-    'home_living' => [
+    'home&_living' => [
         'id' => 4,
         'name'  => 'Home & Living',
         'image' => 'uploads/category/home_living.png',
@@ -26,12 +26,12 @@ return [
         'name'  => 'Beauty',
         'image' => 'uploads/category/beauty.png',
     ],
-    'health_wellness' => [
+    'health&_wellness' => [
         'id' => 6,
         'name'  => 'Health & Wellness',
         'image' => 'uploads/category/health_wellness.png',
     ],
-    'mother_baby' => [
+    'mother&_baby' => [
         'id' => 7,
         'name'  => 'Mother & Baby',
         'image' => 'uploads/category/mother_baby.png',

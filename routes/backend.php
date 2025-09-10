@@ -14,6 +14,7 @@ use App\Http\Controllers\Web\Backend\Product\AttributeController;
 use App\Http\Controllers\Web\Backend\Order\DeliveryController;
 use App\Http\Controllers\Web\Backend\Order\OrderController;
 use App\Http\Controllers\Web\Backend\FaqController;
+use App\Http\Controllers\Web\Backend\Game\VersusCategoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -75,6 +76,9 @@ use App\Http\Middleware\isAdmin;
         Route::get('/get-subcategories/{category_id}', [CategoryController::class, 'getSubcategories']);
         Route::post('/product/update-status', [ProductController::class, 'updateStatus'])->name('product.status');
         Route::post('/product/toggle-featured', [ProductController::class, 'toggleFeatured'])->name('product.toggleFeatured');
+
+        // game
+        Route::resource('game-category', VersusCategoryController::class);
 
         // settings
         Route::resource('system-setting', SystemSettingController::class);

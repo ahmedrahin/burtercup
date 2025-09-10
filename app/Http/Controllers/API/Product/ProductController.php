@@ -92,7 +92,6 @@ class ProductController extends Controller
 
     public function addProduct(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|unique:products,name',
             'quantity' => 'required|min:1',
@@ -128,6 +127,25 @@ class ProductController extends Controller
             $count++;
         }
 
+        $category = collect(config('categories'))->where('id', $request->category_id)->first();
+
+        if (!$category) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Category not found',
+            ], 404);
+        }
+
+        if($request->subcategory_id){
+            $subcategory = SubCategory::find($request->subcategory_id);
+            if (!$subcategory) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Subcategory not found',
+                ], 404);
+            }
+        }
+
         $data = [
             'name' => $request->name,
             'slug' => $slug,
@@ -140,6 +158,8 @@ class ProductController extends Controller
             'user_id' => auth()->id(),
             'add_source' => 'app',
             'category_id' => $request->category_id,
+            'category' => $category['name'],
+            'subcategory' => $subcategory->name ?? null,
             'subcategory_id' => $request->subcategory_id,
             'condition' => $request->condition,
         ];
@@ -233,6 +253,24 @@ class ProductController extends Controller
             $product->slug = $slug;
         }
 
+        $category = collect(config('categories'))->where('id', $request->category_id)->first();
+        if($request->subcategory_id){
+            $subcategory = SubCategory::find($request->subcategory_id);
+            if (!$subcategory) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Subcategory not found',
+                ], 404);
+            }
+        }
+
+        if (!$category) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Category not found',
+            ], 404);
+        }
+
         // Update product fields
         $product->name = $request->name;
         $product->coin = $request->coins;
@@ -244,6 +282,8 @@ class ProductController extends Controller
         $product->category_id = $request->category_id;
         $product->condition = $request->condition;
         $product->subcategory_id = $request->subcategory_id ?? $product->subcategory_id;
+        $product->category = $category['name'] ?? null;
+        $product->subcategory = $subcategory->name ?? null;
 
         $product->save();
 
@@ -764,7 +804,7 @@ class ProductController extends Controller
 
     public function getSubCategories(Request $request)
     {
-        $categoryKey = $request->input('category_key');
+        $categoryKey = $request->input('id');
 
         if (!$categoryKey) {
             return response()->json([
@@ -773,7 +813,7 @@ class ProductController extends Controller
             ], 400);
         }
 
-        $subcategories = SubCategory::where('category_key', $categoryKey)->get(['id', 'category_key', 'name', 'image']);
+        $subcategories = SubCategory::where('category_id', $categoryKey)->get(['id', 'category_id', 'category_key', 'name', 'image']);
 
         return response()->json([
             'status' => true,

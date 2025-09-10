@@ -15,12 +15,7 @@ class OrderItem extends Model
     public function product(){
         return $this->belongsTo(Product::class);
     }
-
-    public function cartOptions()
-    {
-        return $this->hasOne(CartOptions::class, 'order_item_id');
-    }
-
+    
       protected $casts = [
         'order_id' => 'integer',
         'product_id' => 'integer'

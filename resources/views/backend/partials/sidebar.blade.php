@@ -136,6 +136,28 @@
                         </li>
                     </ul>
 
+                    <div class="center-heading" style="margin-top: 15px;">Versus Game</div>
+
+                     <li class="menu-item has-children {{ request()->routeIs('game-category*') ? 'active' : '' }}">
+                        <a href="javascript:void(0);" class="menu-item-button">
+                            <div class="icon"><i class="icon-layers"></i></div>
+                            <div class="text">Game Categories</div>
+                        </a>
+                        <ul class="sub-menu">
+                            <li class="sub-menu-item">
+                                <a href="{{ route('game-category.index') }}" class="{{ request()->routeIs('game-category.index') ? 'active' : '' }}">
+                                    <div class="text">All Category</div>
+                                </a>
+                            </li>
+                            <li class="sub-menu-item">
+                                <a href="{{ route('game-category.create') }}" class="{{ request()->routeIs('game-category.create') ? 'active' : '' }}">
+                                    <div class="text">Add new category</div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+
                     <div class="center-heading" style="margin-top: 15px;">System Settings</div>
                     <li class="menu-item has-children {{ request()->routeIs('faq*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">
@@ -155,7 +177,7 @@
                             </li>
                         </ul>
                     </li>
-                    
+
                     <li class="menu-item has-children {{ request()->routeIs('system-setting*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon"><i class="icon-settings"></i></div>

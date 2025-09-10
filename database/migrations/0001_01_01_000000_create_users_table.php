@@ -25,6 +25,7 @@ return new class extends Migration
             $table->integer('age')->nullable();
 
             $table->integer('coins')->default(0);
+            $table->integer('active_coins')->default(0);
             $table->boolean('share')->default(0);
             $table->json('categories')->nullable();
 

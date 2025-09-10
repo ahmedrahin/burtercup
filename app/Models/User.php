@@ -72,4 +72,15 @@ class User extends Authenticatable implements JWTSubject , MustVerifyEmail
         return $this->hasMany(Order::class);
     }
 
+    public function totalSales()
+    {
+        $total = OrderItem::whereHas('product', function ($query) {
+                $query->withTrashed()->where('user_id', $this->id);
+            })
+            ->selectRaw('SUM(quantity * price) as total')
+            ->value('total') ?? 0;
+
+        return (int) $total;
+    }
+
 }
