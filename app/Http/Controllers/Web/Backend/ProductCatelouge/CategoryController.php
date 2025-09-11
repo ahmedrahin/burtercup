@@ -273,11 +273,6 @@ class CategoryController extends Controller
 
     public function updateStatus(Request $request)
     {
-        $validated = $request->validate([
-            'id' => 'required|exists:categories,id',
-            'status' => 'required|in:active,inactive',
-        ]);
-
         // Find the brand
         $data = SubCategory::findOrFail($request->id);
 

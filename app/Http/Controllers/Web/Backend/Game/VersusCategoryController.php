@@ -7,11 +7,11 @@ use Illuminate\Http\Request;
 use App\Models\GameCategory;
 use Illuminate\Support\Str;
 use App\Helpers\Helper;
+use App\Models\Product;
 use Yajra\DataTables\DataTables;
 
 class VersusCategoryController extends Controller
 {
-
     public function index(Request $request)
     {
         if ($request->ajax()) {
@@ -84,6 +84,7 @@ class VersusCategoryController extends Controller
         // Create brand
         $data = GameCategory::create([
             'name' => $request->name,
+            'free' => $request->free,
             'premium' => $request->premium,
             'platinum' => $request->platinum,
         ]);
@@ -95,10 +96,55 @@ class VersusCategoryController extends Controller
         ]);
     }
 
-     public function edit(string $id)
+    public function edit(string $id)
     {
         $data = GameCategory::find($id);
-        return view('backend.layouts.category.edit', compact('data',));
+        return view('backend.layouts.game.category.edit', compact('data',));
     }
 
+    public function update(Request $request, $id)
+    {
+        $data = GameCategory::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255'
+        ]);
+
+        $data->update([
+            'name' => $request->name,
+            'free' => $request->free,
+            'premium' => $request->premium,
+            'platinum' => $request->platinum,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Category created successfully.',
+            'data' => $data
+        ]);
+    }
+
+     public function updateStatus(Request $request)
+    {
+        // Find the brand
+        $data = GameCategory::findOrFail($request->id);
+
+        // Update the status
+        $data->status = $request->status;
+        $data->save();
+
+        $message = $request->status == 'inactive' ? "{$data->name} is inactive" : "{$data->name} is active";
+        $type = $request->status == 'inactive' ? 'info' : 'success';
+
+        return response()->json(['message' => $message, 'type' => $type]);
+    }
+
+    public function destroy(string $id)
+    {
+        $data = GameCategory::findOrFail($id);
+        $data->delete();
+
+        return response()->json(['message' => 'Category deleted successfully.']);
+    }
+    
 }

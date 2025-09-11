@@ -14,6 +14,7 @@ use App\Http\Controllers\API\Order\OrderController;
 use App\Http\Controllers\Web\Backend\FaqController;
 use App\Models\User;
 use Illuminate\Auth\Events\Verified;
+use App\Http\Controllers\API\Game\GameController;
 
 /*
 |--------------------------------------------------------------------------
@@ -171,6 +172,10 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
     Route::controller(FaqController::class)->group(function () {
         Route::get('/faq-list', 'faqList');
         Route::get('/faq-search', 'faqSearch');
+    });
+
+    Route::controller(GameController::class)->group(function () {
+        Route::get('/versus-categories', 'GameCategory');
     });
 
 });

@@ -40,6 +40,7 @@ return new class extends Migration
             $table->boolean('onboard_sec')->default(0);
             $table->string('reset_token')->nullable();
             $table->datetime('last_login_at')->nullable();
+            $table->string('subscription')->default('free');
 
             $table->softDeletes();
             $table->rememberToken();

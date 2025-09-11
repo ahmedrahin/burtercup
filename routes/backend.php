@@ -79,6 +79,7 @@ use App\Http\Middleware\isAdmin;
 
         // game
         Route::resource('game-category', VersusCategoryController::class);
+        Route::post('/game-category/update-status', [VersusCategoryController::class, 'updateStatus'])->name('game-category.status');
 
         // settings
         Route::resource('system-setting', SystemSettingController::class);

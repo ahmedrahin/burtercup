@@ -182,7 +182,7 @@
             var id = $(this).data('id');
 
             $.ajax({
-                url: '{{ route("category.status") }}',
+                url: '{{ route("game-category.status") }}',
                 method: 'POST',
                 data: {
                     id: id,
@@ -223,7 +223,7 @@
                 buttonsStyling: false
             }).then((result) => {
                 if (result.isConfirmed) {
-                    var deleteUrl = "{{ route('category.destroy', ':id') }}";
+                    var deleteUrl = "{{ route('game-category.destroy', ':id') }}";
                     deleteUrl = deleteUrl.replace(':id', id);
 
                     $.ajax({
@@ -243,60 +243,6 @@
                 }
             });
         });
-    </script>
-
-    <script>
-        $(document).on('change', '.is-featured-checkbox', function () {
-            let id = $(this).data('id');
-            let is_featured = $(this).is(':checked') ? 1 : 0;
-
-            $.ajax({
-                url: '{{ route("category.toggleFeatured") }}',
-                method: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    id: id,
-                    is_featured: is_featured
-                },
-                success: function (response) {
-                    console.log(response.message);
-                },
-                error: function () {
-                    alert('Something went wrong');
-                }
-            });
-        });
-    </script>
-
-    <script>
-       $(document).on('change', '.menu-featured-checkbox', function () {
-            let id = $(this).data('id');
-            let checkbox = $(this);
-            let menu_featured = checkbox.is(':checked') ? 1 : 0;
-
-            $.ajax({
-                url: '{{ route("category.toggleMenuFeatured") }}',
-                method: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    id: id,
-                    menu_featured: menu_featured
-                },
-                success: function (response) {
-                    if (response.status) {
-
-                    } else {
-                        alert(response.message);
-                        checkbox.prop('checked', !menu_featured);
-                    }
-                },
-                error: function () {
-                    alert('Something went wrong');
-                    checkbox.prop('checked', !menu_featured);
-                }
-            });
-        });
-
     </script>
 
 @endpush
