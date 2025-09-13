@@ -15,6 +15,7 @@ use App\Http\Controllers\Web\Backend\Order\DeliveryController;
 use App\Http\Controllers\Web\Backend\Order\OrderController;
 use App\Http\Controllers\Web\Backend\FaqController;
 use App\Http\Controllers\Web\Backend\Game\VersusCategoryController;
+use App\Http\Controllers\Web\Backend\Game\GameController;
 
 /*
 |--------------------------------------------------------------------------
@@ -80,6 +81,9 @@ use App\Http\Middleware\isAdmin;
         // game
         Route::resource('game-category', VersusCategoryController::class);
         Route::post('/game-category/update-status', [VersusCategoryController::class, 'updateStatus'])->name('game-category.status');
+
+        Route::resource('game', GameController::class);
+        Route::post('/game/update-status', [GameController::class, 'updateStatus'])->name('game.status');
 
         // settings
         Route::resource('system-setting', SystemSettingController::class);

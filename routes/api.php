@@ -176,6 +176,10 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
 
     Route::controller(GameController::class)->group(function () {
         Route::get('/versus-categories', 'GameCategory');
+        Route::get('/games/{id}', 'game');
+        Route::get('/game_options/{id}', 'game_options');
+        Route::post('/play_game', 'playGame');
+        Route::post('/collect_coin', 'collectCoin');
     });
 
 });

@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('game_categories', function (Blueprint $table) {
+        Schema::create('game_options', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->boolean('free')->default(0);
-            $table->boolean('premium')->default(1);
-            $table->boolean('platinum')->default(1);
-            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->foreignId('game_id')->constrained()->onDelete('cascade');
+            $table->string('option_a_image');
+            $table->string('option_a_name');
+            $table->string('option_b_image');
+            $table->string('option_b_name');
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('game_categories');
+        Schema::dropIfExists('game_options');
     }
 };
