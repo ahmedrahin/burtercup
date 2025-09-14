@@ -176,7 +176,7 @@
                         </ul>
                     </li>
 
-                    <div class="center-heading" style="margin-top: 15px;">System Settings</div>
+                    <div class="center-heading" style="margin-top: 15px;">Content</div>
                     <li class="menu-item has-children {{ request()->routeIs('faq*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon"><i class="icon-help-circle"></i></div>
@@ -196,6 +196,16 @@
                         </ul>
                     </li>
 
+                    <ul class="menu-list">
+                        <li class="menu-item">
+                            <a href="{{ route('slider-banner.index') }}" class="{{ request()->routeIs('slider-banner*') ? 'active' : '' }}">
+                                <div class="icon"><i class="icon-tag"></i></div>
+                                <div class="text">Banner Slider</div>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="center-heading" style="margin-top: 15px;">System Settings</div>
                     <li class="menu-item has-children {{ request()->routeIs('system-setting*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon"><i class="icon-settings"></i></div>

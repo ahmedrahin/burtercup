@@ -791,6 +791,7 @@ class ProductController extends Controller
                 'name' => $category['name'] ?? $category,
                 'image' => $category['image'] ?? null,
                 'subcategories' => $subcategories,
+                'product_count' => Product::where('category_id', $category['id'])->count(),
             ];
         })->values();
 

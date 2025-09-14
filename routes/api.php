@@ -15,6 +15,7 @@ use App\Http\Controllers\Web\Backend\FaqController;
 use App\Models\User;
 use Illuminate\Auth\Events\Verified;
 use App\Http\Controllers\API\Game\GameController;
+use App\Http\Controllers\API\HomePagesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -180,6 +181,11 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
         Route::get('/game_options/{id}', 'game_options');
         Route::post('/play_game', 'playGame');
         Route::post('/collect_coin', 'collectCoin');
+    });
+
+    // home page controller
+    Route::controller(HomePagesController::class)->group(function () {
+        Route::get('banner-slider', 'homeBanner');
     });
 
 });
