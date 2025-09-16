@@ -13,7 +13,7 @@ use App\Models\SearchHistory;
 use App\Models\ProductSize;
 use Illuminate\Support\Str;
 use App\Helpers\Helper;
-
+use App\Models\ProductGellary;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -215,24 +215,6 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
 
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|unique:products,name,' . $product->id,
-            'quantity' => 'required|min:1',
-            'coins' => 'required',
-            'category_id' => 'required',
-            'image' => 'nullable|image',
-            'condition' => 'required|string'
-        ], messages: [
-            'image.required' => 'Please select at least one product image'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'error' => $validator->errors()->all(),
-                'status' => false,
-            ], 400);
-        }
-
         // Handle main image
         if ($request->hasFile('image')) {
             $randomString = (string) Str::uuid();
@@ -272,32 +254,42 @@ class ProductController extends Controller
         }
 
         // Update product fields
-        $product->name = $request->name;
-        $product->coin = $request->coins;
-        $product->quantity = $request->quantity;
-        $product->description = $request->description;
+        $product->name = $request->name ?? $product->name;
+        $product->coin = $request->coins ?? $product->coin;
+        $product->quantity = $request->quantity ?? $product->quantity;
+        $product->description = $request->description ?? $product->description;
         $product->status = $request->status ?? $product->status;
         $product->is_new = $request->is_new ?? $product->is_new;
         $product->is_featured = $request->is_featured ?? $product->is_featured;
-        $product->category_id = $request->category_id;
-        $product->condition = $request->condition;
+        $product->category_id = $request->category_id ?? $product->category_id;
+        $product->condition = $request->condition ?? $product->condition;
         $product->subcategory_id = $request->subcategory_id ?? $product->subcategory_id;
         $product->category = $category['name'] ?? null;
         $product->subcategory = $subcategory->name ?? null;
 
         $product->save();
 
-        if ($request->hasFile('gellary_images')) {
-            // Delete old gallery images (DB + file)
-            foreach ($product->gellary_images as $oldImage) {
-                if (file_exists(public_path($oldImage->image))) {
-                    unlink(public_path($oldImage->image));
-                }
-                $oldImage->delete();
-            }
+        return response()->json([
+            'status' => true,
+            'code' => 200,
+            'message' => 'Product updated successfully.',
+            'data' => $product,
+        ], 200);
+    }
 
-            // Upload new gallery images
-            foreach ($request->file('gellary_images') as $image) {
+    public function galleryAdd(Request $request, $id){
+        $product = Product::find($id);
+
+        if (!$product) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Product not found.',
+            ], 404);
+        }
+
+        $images = $request->file(key: 'gellary_images');
+        if ($request->hasFile('gellary_images')) {
+            foreach ($images as $image) {
                 $randomString = (string) Str::uuid();
                 $galleryImagePath = Helper::fileUpload($image, 'product/gellary', $randomString);
 
@@ -310,8 +302,63 @@ class ProductController extends Controller
         return response()->json([
             'status' => true,
             'code' => 200,
-            'message' => 'Product updated successfully.',
-            'data' => $product,
+            'message' => 'Product gallery images added successfully.',
+            'data' => $product->gellary_images,
+        ], 200);
+    }
+
+    public function galleryUpdate(Request $request, $id)
+    {
+        $gallery = ProductGellary::find($id);
+
+        if (!$gallery) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Product Gallery not found.',
+            ], 404);
+        }
+
+        if ($request->hasFile('gellary_image')) {
+            if (file_exists(public_path($gallery->image))) {
+                unlink(public_path($gallery->image));
+            }
+
+            $randomString = (string) Str::uuid();
+            $galleryImagePath = Helper::fileUpload($request->file('gellary_image'), 'product/gellary', $randomString);
+
+            $gallery->update([
+                'image' => $galleryImagePath,
+            ]);
+        }
+
+        return response()->json([
+            'status' => true,
+            'code' => 200,
+            'message' => 'Product gallery updated successfully.',
+            'data' => $gallery,
+        ], 200);
+    }
+
+    public function galleryDelete(Request $request, $id)
+    {
+        $gallery = ProductGellary::find($id);
+
+        if (!$gallery) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Product Gallery not found.',
+            ], 404);
+        }
+
+        if (file_exists(public_path($gallery->image))) {
+            unlink(public_path($gallery->image));
+        }
+        $gallery->delete();
+
+        return response()->json([
+            'status' => true,
+            'code' => 200,
+            'message' => 'Product gallery image deleted successfully.',
         ], 200);
     }
 

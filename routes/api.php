@@ -113,6 +113,9 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
         Route::post('update-options/{id}', 'updateOptions');
         Route::get('product-edit/{id}', 'productEdit');
         Route::post('product-update/{id}', 'productUpdate');
+        Route::post('gallery-add/{id}', 'galleryAdd');
+        Route::post('delete-gallery/{id}', 'galleryDelete');
+        Route::post('gallery-update/{id}', 'galleryUpdate');
         Route::get('my-list', 'myItemList');
         Route::get('product-details/{id}', 'productDetails');
         Route::post('product-delete/{id}', 'productDelete');
