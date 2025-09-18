@@ -246,7 +246,7 @@ class ProductController extends Controller
             }
         }
 
-        if (!$category) {
+        if (!$category && $request->category_id) {
             return response()->json([
                 'status' => false,
                 'message' => 'Category not found',
@@ -264,8 +264,8 @@ class ProductController extends Controller
         $product->category_id = $request->category_id ?? $product->category_id;
         $product->condition = $request->condition ?? $product->condition;
         $product->subcategory_id = $request->subcategory_id ?? $product->subcategory_id;
-        $product->category = $category['name'] ?? null;
-        $product->subcategory = $subcategory->name ?? null;
+        $product->category = $category['name'] ?? $product->category;
+        $product->subcategory = $subcategory->name ?? $product->subcategory;
 
         $product->save();
 

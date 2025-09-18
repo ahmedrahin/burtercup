@@ -224,14 +224,12 @@
                 <div class="summary-item">
                     <div class="body-text">Name:</div>
                     <div class="body-title-2 ">
-                        <a href="{{ route('user.show', $data->user->id) }}" class="text-primary">
-                            {{ $data->user->name }}
-                        </a>
+                        {{ $data->name }}
                     </div>
                 </div>
                 <div class="summary-item">
                     <div class="body-text">Email:</div>
-                    <div class="body-title-2">{{ $data->user->email }}</div>
+                    <div class="body-title-2">{{ $data->email }}</div>
                 </div>
                 <div class="summary-item">
                     <div class="body-text">Phone:</div>
@@ -252,10 +250,8 @@
                 <select id="order-status-select" class="form-select">
                     <option value="" disabled selected>Select Status</option>
                     <option value="pending" {{ $data->delivery_status == 'pending' ? 'selected' : '' }} >Pending</option>
-                    <option value="confirmed" {{ $data->delivery_status == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
                     <option value="processing" {{ $data->delivery_status == 'processing' ? 'selected' : '' }} >Processing</option>
-                    <option value="ready to ship" {{ $data->delivery_status == 'ready to ship' ? 'selected' : '' }} >Ready to ship</option>
-                    <option value="delivered" {{ $data->delivery_status == 'delivered' ? 'selected' : '' }}>Delivered</option>
+                    <option value="completed" {{ $data->delivery_status == 'completed' ? 'selected' : '' }}>Completed</option>
                     <option value="canceled" {{ $data->delivery_status == 'canceled' ? 'selected' : '' }}>Canceled</option>
                 </select>
             </div>

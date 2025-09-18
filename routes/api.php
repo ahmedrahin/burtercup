@@ -103,6 +103,8 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
 
         // coin management
         Route::get('/coin-management', 'coinManagement');
+        Route::get('/today-transaction', 'todayTransaction');
+
     });
 
     // product

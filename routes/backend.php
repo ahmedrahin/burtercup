@@ -17,6 +17,7 @@ use App\Http\Controllers\Web\Backend\FaqController;
 use App\Http\Controllers\Web\Backend\Game\VersusCategoryController;
 use App\Http\Controllers\Web\Backend\Game\GameController;
 use App\Http\Controllers\Web\Backend\SliderBannerController;
+use App\Http\Controllers\Web\Backend\Charity\ProgrammeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -94,6 +95,9 @@ use App\Http\Middleware\isAdmin;
 
          // slider banner
         Route::resource('slider-banner', SliderBannerController::class);
+
+        // charity
+        Route::resource('programmes', ProgrammeController::class);
 
     });
 

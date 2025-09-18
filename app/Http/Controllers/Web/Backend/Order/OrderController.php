@@ -25,6 +25,9 @@ class OrderController extends Controller
                 ->addIndexColumn()
 
                 ->addColumn('user_id', function ($row) {
+                    if(!$row->user) {
+                        return '<div class="body-title-2">Unknown User</div>';
+                    }
                     $avatar = $row->user->avatar ?? 'user.png';
                     return '<div style="display: flex;align-items: center;gap: 11px;" >
                                 <div class="image">
@@ -56,21 +59,18 @@ class OrderController extends Controller
                     $status = '';
                     $class = '';
 
-                    if ($row->delivery_status == 'confirmed') {
+                    if ($row->delivery_status == 'pending') {
                         $status = $row->delivery_status;
-                        $class = 'block-available';
-                    } elseif ($row->delivery_status == 'pending') {
-                        $status = $row->delivery_status;
-                        $class = 'block-pending';
+                        $class = 'badge btn-warning';
                     } elseif ($row->delivery_status == 'processing') {
                         $status = $row->delivery_status;
                         $class = 'badge bg-secondary';
                     } elseif ($row->delivery_status == 'ready to ship') {
                         $status = $row->delivery_status;
                         $class = 'block-warning';
-                    } elseif ($row->delivery_status == 'delivered') {
+                    } elseif ($row->delivery_status == 'completed') {
                         $status = $row->delivery_status;
-                        $class = 'badge bg-warning';
+                        $class = 'badge bg-success';
                     } elseif ($row->delivery_status == 'cancel') {
                         $status = $row->delivery_status;
                         $class = 'block-not-available';

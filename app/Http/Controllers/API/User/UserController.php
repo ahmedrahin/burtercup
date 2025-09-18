@@ -366,4 +366,26 @@ class UserController extends Controller
         ]);
     }
 
+    public function todayTransaction(){
+         $user = auth('api')->user();
+
+        // Check if the user is authenticated
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized. Please log in first to access your profile.',
+                'code' => 401,
+            ], 401);
+        }
+
+        $todayTransactions = $user->orders()->whereDate('created_at', Carbon::today())->get();
+
+         return response()->json([
+            'success' => true,
+            'message' => 'user today transaction data',
+            'status' => 200,
+            'data' => $todayTransactions
+        ]);
+    }
+
 }

@@ -138,7 +138,7 @@
 
                     <div class="center-heading" style="margin-top: 15px;">Versus Game</div>
 
-                     <li class="menu-item has-children {{ request()->routeIs('game-category*') ? 'active' : '' }}">
+                    <li class="menu-item has-children {{ request()->routeIs('game-category*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon"><i class="icon-layers"></i></div>
                             <div class="text">Game Categories</div>
@@ -171,6 +171,27 @@
                             <li class="sub-menu-item">
                                 <a href="{{ route('game.create') }}" class="{{ request()->routeIs('game.create') ? 'active' : '' }}">
                                     <div class="text">Add new Game</div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <div class="center-heading" style="margin-top: 15px;">Charity</div>
+
+                    <li class="menu-item has-children {{ request()->routeIs('programmes*') ? 'active' : '' }}">
+                        <a href="javascript:void(0);" class="menu-item-button">
+                            <div class="icon"><i class="icon-layers"></i></div>
+                            <div class="text">Programmes</div>
+                        </a>
+                        <ul class="sub-menu">
+                            <li class="sub-menu-item">
+                                <a href="{{ route('programmes.index') }}" class="{{ request()->routeIs('programmes.index') ? 'active' : '' }}">
+                                    <div class="text">All Programmes</div>
+                                </a>
+                            </li>
+                            <li class="sub-menu-item">
+                                <a href="{{ route('programmes.create') }}" class="{{ request()->routeIs('programmes.create') ? 'active' : '' }}">
+                                    <div class="text">Add new Programme</div>
                                 </a>
                             </li>
                         </ul>

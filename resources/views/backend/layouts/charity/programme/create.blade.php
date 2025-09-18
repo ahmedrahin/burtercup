@@ -1,9 +1,9 @@
 @extends('backend.app')
 
-@section('title', 'Add New Game')
+@section('title', 'Add New Programme')
 
 @push('styles')
-     <style>
+    <style>
         .dropify-wrapper {
             border: 1px dashed var(--Main);
             border-radius: 10px !important;
@@ -41,6 +41,7 @@
             font-size: 50px;
             font-weight: 700;
         }
+
         .dropify-clear {
             display: none !important;
         }
@@ -54,13 +55,17 @@
             <h3>@yield('title')</h3>
             <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                 <li>
-                    <a href="{{ route('dashboard') }}"><div class="text-tiny">Dashboard</div></a>
+                    <a href="{{ route('dashboard') }}">
+                        <div class="text-tiny">Dashboard</div>
+                    </a>
                 </li>
                 <li>
                     <i class="icon-chevron-right"></i>
                 </li>
                 <li>
-                    <a href="{{ route('game.index') }}"><div class="text-tiny">Game</div></a>
+                    <a href="{{ route('programmes.index') }}">
+                        <div class="text-tiny">Programme</div>
+                    </a>
                 </li>
                 <li>
                     <i class="icon-chevron-right"></i>
@@ -77,86 +82,67 @@
                 <div class="right flex-grow">
 
                     <fieldset class="name mb-14">
-                        <div class="body-title mb-10">Game Category</div>
-                        <select name="category" class="select2">
-                            <option value="">Select a parent category</option>
-                            @foreach($categories as $key => $category)
-                                <option value="{{ $category->id }}">{{ $category->name }}</option>
-                            @endforeach
-                        </select>
-                        <div class="error text-danger"></div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div>
+                                    <div class="body-title mb-10">Image</div>
+                                    <input type="file" class="form-control dropify" id="image" name="image"
+                                        accept="image/*">
+                                    <div class="error text-danger"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div>
+                                    <div class="body-title mb-10">Details Thumbnail</div>
+                                    <input type="file" class="form-control dropify" id="thumbnail" name="thumbnail"
+                                        accept="image/*">
+                                    <div class="error text-danger"></div>
+                                </div>
+                            </div>
+                        </div>
                     </fieldset>
 
                     <fieldset class="name mb-14">
                         <div class="body-title mb-10">Name</div>
-                        <input class="flex-grow" type="text" placeholder="Name" name="name" >
+                        <input class="flex-grow" type="text" placeholder="Name" name="name">
                         <div class="error text-danger"></div>
                     </fieldset>
 
                     <fieldset class="name mb-14">
-                        <div class="body-title mb-10">Short Title</div>
-                        <input class="flex-grow" type="text" placeholder="short title" name="short_title" >
+                        <div class="body-title mb-10">Given Coin</div>
+                        <input class="flex-grow" type="text" placeholder="Given Coin" name="coin">
                         <div class="error text-danger"></div>
                     </fieldset>
 
                     <fieldset class="name mb-14">
-                        <div class="col-md-3">
-                            <div>
-                                <div class="body-title mb-10">Thumbnail</div>
-                                <input type="file" class="form-control dropify" id="image" name="image" accept="image/*">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="body-title mb-10">Country Name</div>
+                                <input class="flex-grow" type="text" placeholder="Country Name" name="country">
+                                <div class="error text-danger"></div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="body-title mb-10">Select Programme Type</div>
+                                <select name="programme_type" id="">
+                                    <option value="">Select Programme Type</option>
+                                    <option value="digital">Digital</option>
+                                    <option value="physical">Physical</option>
+                                </select>
+                                <div class="error text-danger"></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="body-title mb-10">Select Programme Category</div>
+                                <select name="category" id="">
+                                    <option value="">Select Programme Category</option>
+                                    <option value="digital">Digital</option>
+                                    <option value="physical">Physical</option>
+                                </select>
                                 <div class="error text-danger"></div>
                             </div>
                         </div>
                     </fieldset>
 
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="wg-box">
-                        <div class="right flex-grow">
-                            <h3 style="margin-bottom: 10px;">Game Option</h3>
-
-                            <fieldset class="name mb-14" id="options-container">
-                                <div class="option-item border p-5 mb-20 rounded">
-                                    <div class="row gap-0">
-                                        <div class="col-md-6 col-6 thumb-file">
-                                            <div>
-                                                <div class="body-title mb-10">Image</div>
-                                                <input type="file" class="form-control dropify"
-                                                    name="options[0][option_a_image]" accept="image/*">
-                                            </div>
-                                            <div style="margin-top: 10px;">
-                                                <div class="body-title mb-10">Title</div>
-                                                <input class="flex-grow form-control"
-                                                    type="text" placeholder="Title"
-                                                    name="options[0][option_a_name]" >
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-6 col-6 thumb-file">
-                                            <div>
-                                                <div class="body-title mb-10">Image</div>
-                                                <input type="file" class="form-control dropify"
-                                                    name="options[0][option_b_image]" accept="image/*">
-                                            </div>
-                                            <div style="margin-top: 10px;">
-                                                <div class="body-title mb-10">Title</div>
-                                                <input class="flex-grow form-control"
-                                                    type="text" placeholder="Title"
-                                                    name="options[0][option_b_name]" >
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </fieldset>
-
-                            <button type="button" class="btn btn-success" id="add-option-btn" style="font-size: 16px;padding: 10px;width: 150px;">
-                                + Add Option
-                            </button>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -256,7 +242,7 @@
                         $('#submitBtn').prop('disabled', false);
 
                         if (xhr.status === 422) {
-                           $('.error-border').removeClass('error-border');
+                            $('.error-border').removeClass('error-border');
                             let errors = xhr.responseJSON.errors;
 
                             // Loop through errors and show them
@@ -276,11 +262,14 @@
                                 // Handle Select2 errors
                                 if (inputField.hasClass('select2')) {
                                     // Add error class to Select2
-                                    inputField.closest('div').find('.error').text(val[0]);
-                                    inputField.next('.select2').addClass('error_border');
+                                    inputField.closest('div').find('.error').text(val[
+                                        0]);
+                                    inputField.next('.select2').addClass(
+                                    'error_border');
                                 } else {
                                     inputField.addClass('error_border');
-                                    let errorDiv = inputField.closest('fieldset').find('.error');
+                                    let errorDiv = inputField.closest('fieldset').find(
+                                        '.error');
                                     errorDiv.text(val[0]);
                                 }
                             });
@@ -293,56 +282,4 @@
             });
         });
     </script>
-
-    <script>
-        let optionIndex = 1;
-
-        $('#add-option-btn').on('click', function () {
-            const html = `
-                <div class="option-item border p-3 mb-20 rounded">
-                    <div class="d-flex justify-content-end mb-2">
-                        <button type="button" class="btn btn-sm btn-danger remove-option">Remove</button>
-                    </div>
-                    <div class="row gap-0">
-                        <div class="col-md-6 col-6 thumb-file">
-                            <div>
-                                <div class="body-title mb-10">Image</div>
-                                <input type="file" class="form-control dropify"
-                                    name="options[${optionIndex}][option_a_image]" accept="image/*">
-                            </div>
-                            <div style="margin-top: 10px;">
-                                <div class="body-title mb-10">Title</div>
-                                <input class="flex-grow form-control" type="text"
-                                    placeholder="Title" name="options[${optionIndex}][option_a_name]" >
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-6 thumb-file">
-                            <div >
-                                <div class="body-title mb-10">Image</div>
-                                <input type="file" class="form-control dropify"
-                                    name="options[${optionIndex}][option_b_image]" accept="image/*">
-                            </div>
-                            <div style="margin-top: 10px;">
-                                <div class="body-title mb-10">Title</div>
-                                <input class="flex-grow form-control" type="text"
-                                    placeholder="Title" name="options[${optionIndex}][option_b_name]" >
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            $('#options-container').append(html);
-            $('.dropify').dropify();
-
-            optionIndex++;
-        });
-
-        // remove option
-        $(document).on('click', '.remove-option', function () {
-            $(this).closest('.option-item').remove();
-        });
-    </script>
-
 @endpush
-

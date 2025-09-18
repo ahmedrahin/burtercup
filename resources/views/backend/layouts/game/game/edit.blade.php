@@ -110,7 +110,7 @@
                     <fieldset class="name mb-14">
                         <div class="col-md-3">
                             <div>
-                                <div class="body-title mb-10">Product Image</div>
+                                <div class="body-title mb-10">Thumbnail</div>
                                 <input type="file" class="form-control dropify" id="image" name="image"
                                     accept="image/*"
                                     data-default-file="{{ isset($data) && $data->image ? asset($data->image) : '' }}">
