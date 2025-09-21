@@ -16,6 +16,7 @@ use App\Models\User;
 use Illuminate\Auth\Events\Verified;
 use App\Http\Controllers\API\Game\GameController;
 use App\Http\Controllers\API\HomePagesController;
+use App\Http\Controllers\API\Charity\ProgrammeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,7 +46,6 @@ Route::controller(ResetPasswordController::class)->group(function () {
     Route::post('verify-otp-password', 'verifyOtp');
     Route::post('resend-otp-password', 'resendOtp');
 });
-
 
 Route::get('/email/verify/{id}/{hash}', function ($id, $hash) {
     $user = User::findOrFail($id);
@@ -191,6 +191,13 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
     // home page controller
     Route::controller(HomePagesController::class)->group(function () {
         Route::get('banner-slider', 'homeBanner');
+    });
+
+    //charity programme
+    Route::controller(ProgrammeController::class)->group(function () {
+        Route::get('programme-list', 'programmeList');
+        Route::get('programme-details/{id}', 'details');
+        Route::post('donate/{id}', 'donate');
     });
 
 });

@@ -1,6 +1,6 @@
 @extends('backend.app')
 
-@section('title', 'All Programmes')
+@section('title', 'Digital Programmes')
 
 @push('styles')
     <style>
@@ -60,11 +60,12 @@
                     <thead>
                         <tr>
                             <th class="text-left body-title" style="width: 1%;">Sl.</th>
-                            <th class="text-left body-title" style="width: 20%;">Image</th>
+                            <th class="text-left body-title" style="width: 10%;">Image</th>
                             <th class="text-left body-title" style="width: 20%;">Title</th>
-                            <th class="text-left body-title" style="width: 20%;">Type</th>
                             <th class="text-left body-title" style="width: 20%;">Country</th>
+                            <th class="text-left body-title" style="width: 10%;">Total Donation</th>
                             <th class="text-center body-title" style="width: 15%;">Status</th>
+                            <th style="text-align: center;width: 15%;" class="body-title">Details</th>
                             <th style="text-align: right;width: 10%;" class="body-title">Action</th>
                         </tr>
                     </thead>
@@ -115,7 +116,7 @@
         let table = $('#table').DataTable({
             processing: true,
             serverSide: true,
-            ajax: "{{ route('programmes.index') }}",
+            ajax: "{{ route('programmes.digital') }}",
             pageLength: 10,
             lengthMenu: [[10, 50, 100, -1], [10, 50, 100, "All"]],
             lengthChange: true,
@@ -124,9 +125,11 @@
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', className: 'text-left', orderable: false, searchable: false },
                 { data: 'image', name: 'image', searchable: true, orderable: true },
                 { data: 'title', name: 'title', searchable: true, orderable: true, className: 'text-center' },
-                { data: 'type', name: 'type', searchable: true, orderable: true, className: 'text-center' },
+
                 { data: 'country', name: 'country', searchable: true, orderable: true, className: 'text-center' },
+                { data: 'donations', name: 'donations', searchable: false, orderable: false, className: 'text-center' },
                 { data: 'status', name: 'status', orderable: false, searchable: false, className: 'text-center' },
+                { data: 'details', name: 'details', orderable: false, searchable: false, className: 'text-center' },
                 { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-right' }
             ],
             drawCallback: function(settings) {

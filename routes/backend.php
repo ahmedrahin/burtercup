@@ -98,6 +98,10 @@ use App\Http\Middleware\isAdmin;
 
         // charity
         Route::resource('programmes', ProgrammeController::class);
+        Route::get('digital-programmes', [ProgrammeController::class, 'digitalProgrammes'])->name('programmes.digital');
+        Route::get('donation-list/{id}', [ProgrammeController::class, 'donationList'])->name('donation.list');
+        Route::get('physical-programmes', [ProgrammeController::class, 'physicalProgrammes'])->name('programmes.physical');
+        Route::post('/programmes/update-status', [ProgrammeController::class, 'updateStatus'])->name('programmes.status');
 
     });
 

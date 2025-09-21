@@ -7,4 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Programme extends Model
 {
     protected $guarded = [];
+
+    public function donations()
+    {
+        return $this->hasMany(UserDonation::class);
+    }
 }

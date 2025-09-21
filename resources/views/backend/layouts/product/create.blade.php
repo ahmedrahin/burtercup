@@ -327,7 +327,7 @@
 
             </ul>
         </div>
-      
+
         <!-- new-page-wrap -->
         <form class="form-new-page" id="addform" enctype="multipart/form-data">
             <div class="new-page-wrap">
@@ -398,7 +398,6 @@
             });
         });
     </script>
-
 
     <script>
         $(document).ready(function() {
@@ -484,9 +483,7 @@
                             $('.error-border').removeClass('error-border');
                             let errors = xhr.responseJSON.errors;
 
-                            // Loop through errors and show them
                             $.each(errors, function(key, val) {
-                                // Append error message to the error list
                                 $('#errors-msgs').append(`
                                     <li>
                                         <div class="block-warning">

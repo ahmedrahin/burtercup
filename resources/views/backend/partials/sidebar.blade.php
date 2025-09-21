@@ -190,6 +190,16 @@
                                 </a>
                             </li>
                             <li class="sub-menu-item">
+                                <a href="{{ route('programmes.digital') }}" class="{{ request()->routeIs('programmes.digital') ? 'active' : '' }}">
+                                    <div class="text">Digital Programmes</div>
+                                </a>
+                            </li>
+                            <li class="sub-menu-item">
+                                <a href="{{ route('programmes.physical') }}" class="{{ request()->routeIs('programmes.physical') ? 'active' : '' }}">
+                                    <div class="text">Physical Programmes</div>
+                                </a>
+                            </li>
+                            <li class="sub-menu-item">
                                 <a href="{{ route('programmes.create') }}" class="{{ request()->routeIs('programmes.create') ? 'active' : '' }}">
                                     <div class="text">Add new Programme</div>
                                 </a>
