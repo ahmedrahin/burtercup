@@ -100,7 +100,9 @@ use App\Http\Middleware\isAdmin;
         Route::resource('programmes', ProgrammeController::class);
         Route::get('digital-programmes', [ProgrammeController::class, 'digitalProgrammes'])->name('programmes.digital');
         Route::get('donation-list/{id}', [ProgrammeController::class, 'donationList'])->name('donation.list');
+        Route::get('volunteer-list/{id}', [ProgrammeController::class, 'volunteerList'])->name('volunteer.list');
         Route::get('physical-programmes', [ProgrammeController::class, 'physicalProgrammes'])->name('programmes.physical');
+        Route::post('/volunteer/paid', [ProgrammeController::class, 'paid'])->name('coin.paid');
         Route::post('/programmes/update-status', [ProgrammeController::class, 'updateStatus'])->name('programmes.status');
 
     });

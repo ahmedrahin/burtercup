@@ -8,6 +8,8 @@ use App\Models\Programme;
 use Illuminate\Support\Str;
 use App\Helpers\Helper;
 use Yajra\DataTables\DataTables;
+use App\Models\Volunteer;
+use App\Models\User;
 
 class ProgrammeController extends Controller
 {
@@ -236,5 +238,95 @@ class ProgrammeController extends Controller
 
         return view('backend.layouts.charity.programme.donation_list', compact('programme', 'donations'));
     }
+
+    public function physicalProgrammes(Request $request){
+         if ($request->ajax()) {
+            $data = Programme::with('donations')->where('type', 'physical')->orderBy('id', 'desc')->get();
+
+            return DataTables::of($data)
+                ->addIndexColumn()
+
+                ->addColumn('image', function ($row) {
+                    $imageUrl = $row->image ? asset($row->image) : asset('blank-image.svg');
+                    return '<div class="popup-gallery">
+                                <a href="' . $imageUrl . '" class="popup-image">
+                                    <img src="' . $imageUrl . '" width="50" style="border-radius:5px;">
+                                </a>
+                            </div>';
+                })
+
+                ->addColumn('title', function ($row) {
+                    return $row->title;
+                })
+
+                ->addColumn('assign', function ($row) {
+                    $count = $row->volunteer()->count();
+                    return '<span class="badge bg-'. ($count > 0 ? 'success' : 'danger') .'">'  . $count . '</span>';
+                })
+
+                ->addColumn('status', function ($row) {
+                    $status = $row->status == 'active' ? 'checked' : '';
+                    return '
+                        <label class="custom-switch">
+                            <input type="checkbox" class="status-switch" id="status-' . $row->id . '" ' . $status . ' data-id="' . $row->id . '">
+                            <span class="slider"></span>
+                        </label>
+                    ';
+                })
+
+                ->addColumn('details', function ($row) {
+                    return '<div class="">
+                                <a style="font-size:14px;" href="' . route('volunteer.list', $row->id) . '" class="item details"><i class="icon-eye"></i> View Volunteer</a>
+                            </div>';
+                })
+
+                ->addColumn('action', function ($row) {
+                    return '<div class="list-icon-function flex items-center gap-2 justify-end">
+                                <a href="' . route('programmes.edit', $row->id) . '" class="item edit"><i class="icon-edit-3"></i></a>
+                                <button class="item trash" data-id="' . $row->id . '"><i class="icon-trash-2"></i></button>
+                            </div>';
+                })
+
+                ->rawColumns(['name', 'status', 'action', 'image', 'option', 'assign', 'details'])
+                ->make(true);
+        }
+
+        return view('backend.layouts.charity.programme.physical');
+    }
+
+    public function volunteerList($id){
+        $programme = Programme::with('volunteer')->findOrFail($id);
+        $data = $programme->volunteer;
+
+        return view('backend.layouts.charity.programme.volunteer_list', compact('programme', 'data'));
+    }
+
+    public function paid(Request $request)
+    {
+        $volunteer = Volunteer::findOrFail($request->id);
+        $volunteer->paid = $request->paid;
+
+        $user = User::findOrFail($volunteer->user_id);
+
+        $volunteer->save();
+
+        if($volunteer->paid == 1){
+            $user->update([
+                'coins' => $user->coins + 200
+            ]);
+            $message = 'Coin paid successfully';
+        }else {
+             $user->update([
+                'coins' => $user->coins - 200
+            ]);
+            $message = 'Coin return successfully';
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+        ]);
+    }
+
 
 }

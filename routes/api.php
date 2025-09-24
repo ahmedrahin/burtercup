@@ -198,6 +198,7 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
         Route::get('programme-list', 'programmeList');
         Route::get('programme-details/{id}', 'details');
         Route::post('donate/{id}', 'donate');
+        Route::post('voluenter-register/{id}', 'voluenterRegister');
     });
 
 });

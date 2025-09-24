@@ -12,4 +12,9 @@ class Programme extends Model
     {
         return $this->hasMany(UserDonation::class);
     }
+
+    public function volunteer()
+    {
+        return $this->hasMany(Volunteer::class);
+    }
 }
