@@ -8,6 +8,7 @@ use App\Http\Controllers\API\User\UserController;
 use App\Http\Controllers\API\Order\WishlistController;
 use App\Http\Controllers\API\User\UserMessage;
 use App\Http\Controllers\API\Product\ProductController;
+use App\Http\Controllers\API\Product\FilterController;
 use App\Http\Controllers\API\Order\CartController;
 use App\Http\Controllers\API\User\UserAddressController;
 use App\Http\Controllers\API\Order\OrderController;
@@ -121,16 +122,21 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
         Route::get('my-list', 'myItemList');
         Route::get('product-details/{id}', 'productDetails');
         Route::post('product-delete/{id}', 'productDelete');
-        Route::get('/search-products', 'searchProducts');
-        Route::post('/search-query', 'searchQuery');
-        Route::post('/clear-search-history', 'clearSearchHistory');
-        Route::get('apply-filter', 'applyFilters');
-        Route::get('sort', 'sort');
+
         Route::get('categories', 'getCategories');
         Route::get('subcategories', 'getSubCategories');
         Route::get('product-list', 'productList');
         Route::get('category-product-list/{category}', 'categoryProductList');
         Route::get('subcategory-product-list/{subcategory}', 'subcategoryProductList');
+    });
+
+    // filter product
+    Route::controller(FilterController::class)->group(function () {
+        Route::get('/search-products', 'searchProducts');
+        Route::post('/search-query', 'searchQuery');
+        Route::post('/clear-search-history', 'clearSearchHistory');
+        Route::get('apply-filter', 'applyFilters');
+        Route::get('sort', 'sort');
     });
 
     // wishlist
