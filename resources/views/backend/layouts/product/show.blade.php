@@ -114,7 +114,7 @@
                         <div class="tf-product-info-title" style="margin-bottom: 25px;">
                             <h3>{{ $product->name }}</h3>
 
-                            @php
+                            {{-- @php
                                 $averageRating = round($product->reviews->avg('rating'), 1);
                                 $fullStars = floor($averageRating);
                                 $halfStar = ($averageRating - $fullStars) >= 0.5 ? 1 : 0;
@@ -132,19 +132,10 @@
                                     <i class="bi bi-star text-muted me-2"></i>
                                 @endfor
                                 <span class="ms-2 text-muted">({{ $product->reviews->count() }} reviews)</span>
-                            </div>
+                            </div> --}}
 
                             <div class="price body-title">
-                                ৳{{$product->offer_price}}
-                                @if( $product->discount_option != 1 )
-                                    <span class="text-danger" style="font-weight: 600;">
-                                        <del>৳{{ number_format($product->base_price, 2) }}</del>
-                                        @php
-                                            $discountPercentage = round((($product->discount_amount) / $product->base_price) * 100);
-                                        @endphp
-                                        {{$discountPercentage}}% off
-                                    </span>
-                                @endif
+                                500 Coins
                             </div>
                         </div>
 
@@ -154,33 +145,16 @@
                             @endif
                         </div>
 
-
                         <div class="row infos">
                             <div class="row info-box">
                                 <div class="col-md-6">
                                     <div class="product-details">
                                         <h4>General Information</h4>
                                         <dl class="row mb-0">
-                                            <dt class="col-sm-6">Sku code:</dt>
-                                            <dd class="col-sm-6">{{ $product->sku_code ?? 'N/A' }}</dd>
-
                                             <dt class="col-sm-6">Category:</dt>
                                             <dd class="col-sm-6">
-                                                @if ($product->category)
-                                                    {!! $product->category->name !!}
-                                                    @if ($product->subcategory)
-                                                        -> {!! $product->subcategory->name !!}
-                                                        @if ($product->subsubcategory)
-                                                            -> {!! $product->subsubcategory->name !!}
-                                                        @endif
-                                                    @endif
-                                                @else
-                                                    <span class="no">Uncategorized</span>
-                                                @endif
+                                                <span class="no">{{ $product->category }}</span>
                                             </dd>
-
-                                            <dt class="col-sm-6">Brand:</dt>
-                                            <dd class="col-sm-6">{{ $product->brand->name ?? 'N/A' }}</dd>
 
                                             <dt class="col-sm-6">Quantity:</dt>
                                             <dd class="col-sm-6">
@@ -201,11 +175,11 @@
                                         <h4>Others Information</h4>
                                         <dl class="row">
                                             <dt class="col-sm-6">Created at:</dt>
-                                            <dd class="col-sm-6">{{ \Carbon\Carbon::parse($product->created_at)->format('M-d-Y h:i A') }}</dd>
+                                            <dd class="col-sm-6">{{ \Carbon\Carbon::parse($product->created_at)->format('M-d-Y') }}</dd>
                                             <dt class="col-sm-6">Last Updated:</dt>
                                             <dd class="col-sm-6">
                                                 @if( $product->created_at != $product->updated_at )
-                                                    {{ \Carbon\Carbon::parse($product->updated_at)->format('M-d-Y h:i A') }}
+                                                    {{ \Carbon\Carbon::parse($product->updated_at)->format('M-d-Y') }}
                                                 @else
                                                     No update yet
                                                 @endif

@@ -169,6 +169,8 @@ class FilterController extends Controller
         $condition = $request->input('condition');
         $deliveryMethod = $request->input('delivery_method');
 
+        $specials = $request->input('specials');
+
         $products = Product::with(['user:id,name,avatar'])
             ->where('status', 1)
             ->where(function ($q) {
@@ -201,6 +203,10 @@ class FilterController extends Controller
                 // If delivery method provided but invalid, force empty result
                 $products->whereRaw('1 = 0');
             }
+        }
+
+        if($specials !== null){
+            $products->where('add_source', 'admin');
         }
 
         $products = $products->get(['id', 'user_id', 'name', 'thumb_image', 'coin', 'slug']);

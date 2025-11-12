@@ -374,6 +374,7 @@ class ProductController extends Controller
         }
 
         $items = Product::with(['user:id,name,avatar'])
+            ->orderBy('id', 'desc')
             ->where('user_id', $user->id)
             ->where('status', 1)
             ->where(function ($q) {
@@ -650,6 +651,7 @@ class ProductController extends Controller
         }
 
         $products = Product::with(['user:id,name,avatar'])
+            ->orderBy('id', 'desc')
             ->where('status', 1)
             ->where(function ($q) {
                 $q->whereNull('expire_date')

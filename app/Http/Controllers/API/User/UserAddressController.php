@@ -81,7 +81,7 @@ class UserAddressController extends Controller
             'success' => true,
             'code' => 200,
             'message' => 'Address list fetched successfully.',
-            'default_address' => $defaultAddress,
+            // 'default_address' => $defaultAddress,
             'saved_addresses' => $savedAddresses,
         ], 200);
     }

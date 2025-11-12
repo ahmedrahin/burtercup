@@ -78,14 +78,12 @@ class CartController extends Controller
                 ], 400);
             }
 
-            // Check if already in cart
             $cartItem = Cart::where('user_id', $user->id)
                 ->where('product_id', $product->id)
                 ->first();
 
             $qtyToAdd = $request->quantity ?? 1;
 
-            // Prevent adding more than available stock
             if ($cartItem) {
                 if ($cartItem->quantity + $qtyToAdd > $product->quantity) {
                     return response()->json([
@@ -94,9 +92,10 @@ class CartController extends Controller
                     ], 400);
                 }
 
-                // Update quantity
                 $cartItem->quantity += $qtyToAdd;
                 $cartItem->save();
+
+                $data = $cartItem;
             } else {
                 if ($qtyToAdd > $product->quantity) {
                     return response()->json([
@@ -105,7 +104,6 @@ class CartController extends Controller
                     ], 400);
                 }
 
-                // Create new cart item
                 $data = Cart::create([
                     'user_id' => $user->id,
                     'product_id' => $product->id,
@@ -129,6 +127,7 @@ class CartController extends Controller
             ], 500);
         }
     }
+
 
     public function CartList(Request $request)
     {
@@ -175,15 +174,15 @@ class CartController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Cart items retrieved successfully.',
-                'data'    => $validCartItems->values(),
-                 'code' => 200,
+                'data' => $validCartItems->values(),
+                'code' => 200,
             ], 200);
 
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Something went wrong.',
-                'error'   => $e->getMessage()
+                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -216,7 +215,7 @@ class CartController extends Controller
     //     }
     // }
 
-     public function deleteCart(Request $request, $id)
+    public function deleteCart(Request $request, $id)
     {
         try {
             $cartId = Cart::find($id);
@@ -233,7 +232,7 @@ class CartController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'cart item deleted.',
-                 'code' => 200,
+                'code' => 200,
             ], 200);
 
         } catch (Exception $e) {
@@ -305,7 +304,7 @@ class CartController extends Controller
 
             return response()->json([
                 'success' => true,
-                 'code' => 200,
+                'code' => 200,
                 'message' => 'Order summary',
                 'subtotal' => $this->getTotalAmount(),
                 'grand_total' => $this->getTotalAmount() + $shipping - $appliedCoupon->discount_amount,

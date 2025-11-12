@@ -57,6 +57,7 @@
 
     <div class="wg-order-detail">
         <div class="left flex-grow">
+            
             <div class="wg-box mb-20">
                 <div class="wg-table table-order-detail">
                     <ul class="table-title flex items-center justify-between gap20 mb-24">
@@ -75,7 +76,6 @@
                     </ul>
 
                     <ul class="flex flex-column">
-                        <!-- Header Row -->
                         <li class="product-item gap14">
                             <div class="flex items-center justify-between gap40 flex-grow">
                                 <div class="name product-name">
@@ -89,9 +89,6 @@
                                 </div>
                                 <div class="name total">
                                     <div class="body-title-2 font-bold">Total</div>
-                                </div>
-                                <div class="name total">
-                                    <div class="body-title-2 font-bold">Actions</div>
                                 </div>
                             </div>
                         </li>
@@ -112,14 +109,11 @@
                                         <div class="body-title-2">{{ $item->quantity }}</div>
                                     </div>
                                     <div class="name">
-                                        <div class="body-title-2">${{ $item->price }}</div>
+                                        <div class="body-title-2">{{ number_format($item->price,0) }}</div>
                                     </div>
                                     <div class="name total">
-                                        <div class="body-title-2">${{ number_format($item->price * $item->quantity, 2) }}
+                                        <div class="body-title-2">{{ number_format($item->price * $item->quantity, 0) }}
                                         </div>
-                                    </div>
-                                    <div class="name total">
-
                                     </div>
                                 </div>
                             </li>
@@ -141,7 +135,7 @@
                     <ul class="flex flex-column gap14">
                         <li class="cart-totals-item">
                             <span class="body-text">Subtotal:</span>
-                            <span class="body-title-2 text-end">${{ number_format($data->subtotal, 2) }}</span>
+                            <span class="body-title-2 text-end">{{ number_format($data->subtotal, 0) }}</span>
                         </li>
 
                         <li class="divider"></li>
@@ -162,15 +156,12 @@
 
                         <li class="cart-totals-item">
                             <span class="body-title">Grand Total:</span>
-                            <span class="body-title tf-color-1 text-end">${{ number_format($data->grand_total, 2) }}</span>
+                            <span class="body-title tf-color-1 text-end">{{ number_format($data->grand_total, 0) }}</span>
                         </li>
                     </ul>
                 </div>
-
-
             </div>
 
-            <!-- Bootstrap Modal -->
             <div id="detailsModal" class="modal fade" tabindex="-1" role="dialog">
                 <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content">
@@ -215,7 +206,7 @@
                 </div>
                 <div class="summary-item">
                     <div class="body-text">Total:</div>
-                    <div class="body-title-2 tf-color-1">${{ number_format($data->grand_total, 2) }}</div>
+                    <div class="body-title-2 tf-color-1">{{ number_format($data->grand_total, 0) }}</div>
                 </div>
             </div>
 

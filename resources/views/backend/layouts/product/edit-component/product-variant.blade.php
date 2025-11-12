@@ -3,7 +3,7 @@
     <div class="col-md-4">
         <div class="wg-box">
             <div class="d-flex align-items-center justify-between mb-4 top">
-                <h3>Select Opacity</h3>
+                <h3>Select Size</h3>
             </div>
             <div class="right flex-grow">
                 <div class="row gx-3 gy-1">
@@ -24,9 +24,6 @@
             </div>
         </div>
     </div>
-
-
-
 
     <div class="wg-box" style="margin: 30px 0 0;">
         <div class="flex gap10 items-center justify-between" style="padding-bottom: 8px;">

@@ -207,6 +207,90 @@
                         </ul>
                     </li>
 
+                    <li class="menu-item has-children {{ request()->routeIs('sponsor*') ? 'active' : '' }}">
+                        <a href="javascript:void(0);" class="menu-item-button">
+                            <div class="icon"><i class="icon-layers"></i></div>
+                            <div class="text">Sponsor</div>
+                        </a>
+                        <ul class="sub-menu">
+                            <li class="sub-menu-item">
+                                <a href="{{ route('sponsor.index') }}" class="{{ request()->routeIs('sponsor.index') ? 'active' : '' }}">
+                                    <div class="text">All Sponsor</div>
+                                </a>
+                            </li>
+                            <li class="sub-menu-item">
+                                <a href="{{ route('sponsor.create') }}" class="{{ request()->routeIs('sponsor.create') ? 'active' : '' }}">
+                                    <div class="text">Sponsor Create</div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <div class="center-heading" style="margin-top: 15px;">Charity Wishlist</div>
+
+                    <li class="menu-item has-children {{ request()->routeIs('wishlist-category*') ? 'active' : '' }}">
+                        <a href="javascript:void(0);" class="menu-item-button">
+                            <div class="icon"><i class="icon-layers"></i></div>
+                            <div class="text">Wishlist Category</div>
+                        </a>
+                        <ul class="sub-menu">
+                            <li class="sub-menu-item">
+                                <a href="{{ route('wishlist-category.index') }}" class="{{ request()->routeIs('wishlist-category.index') ? 'active' : '' }}">
+                                    <div class="text">All Category</div>
+                                </a>
+                            </li>
+                            <li class="sub-menu-item">
+                                <a href="{{ route('wishlist-category.create') }}" class="{{ request()->routeIs('wishlist-category.create') ? 'active' : '' }}">
+                                    <div class="text">Add New Category</div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="menu-item has-children {{ request()->routeIs('wishlist*') ? 'active' : '' }}">
+                        <a href="javascript:void(0);" class="menu-item-button">
+                            <div class="icon"><i class="icon-heart"></i></div>
+                            <div class="text">Wishlist</div>
+                        </a>
+                        <ul class="sub-menu">
+                            <li class="sub-menu-item">
+                                <a href="{{ route('wishlist.index') }}" class="{{ request()->routeIs('wishlist.index') ? 'active' : '' }}">
+                                    <div class="text">All Wishlist</div>
+                                </a>
+                            </li>
+                            <li class="sub-menu-item">
+                                <a href="{{ route('wishlist.create') }}" class="{{ request()->routeIs('wishlist.create') ? 'active' : '' }}">
+                                    <div class="text">Add New Wishlist</div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="menu-item has-children {{ request()->routeIs('wishlist-list*') ? 'active' : '' }}">
+                        <a href="javascript:void(0);" class="menu-item-button">
+                            <div class="icon"><i class="icon-gift"></i></div>
+                            <div class="text">Wishlist Items</div>
+                        </a>
+                        <ul class="sub-menu">
+                            <li class="sub-menu-item">
+                                <a href="{{ route('wishlist-list.index') }}" class="{{ request()->routeIs('wishlist-list.index') ? 'active' : '' }}">
+                                    <div class="text">All Wishlist Items List</div>
+                                </a>
+                            </li>
+                            <li class="sub-menu-item">
+                                <a href="{{ route('wishlist-list.create') }}" class="{{ request()->routeIs('wishlist-list.create') ? 'active' : '' }}">
+                                    <div class="text">Add New Item</div>
+                                </a>
+                            </li>
+
+                            <li class="sub-menu-item">
+                                <a href="{{ route('gifts') }}" class="{{ request()->routeIs('gifts') ? 'active' : '' }}">
+                                    <div class="text">Gifts Information</div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
                     <div class="center-heading" style="margin-top: 15px;">Content</div>
                     <li class="menu-item has-children {{ request()->routeIs('faq*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">

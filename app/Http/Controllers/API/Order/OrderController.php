@@ -164,25 +164,40 @@ class OrderController extends Controller
             ], 401);
         }
 
+        // Define all possible statuses
+        $statuses = ['pending', 'processing', 'completed', 'canceled'];
 
+        // Get user's orders
         $orders = Order::withCount(['orderItems as orderItemsCount'])
-                ->with(['delivery:id,name'])
-                ->where('user_id', $user->id)
-                ->select(['id', 'order_id', 'delivery_status', 'delivery_option_id', DB::raw('(select count(*) from order_items where order_items.order_id = orders.id) as orderItemsCount')])
-                ->latest()
-                ->get();
+            ->with(['delivery:id,name'])
+            ->where('user_id', $user->id)
+            ->select([
+                'id',
+                'order_id',
+                'delivery_status',
+                'delivery_option_id',
+                'order_date',
+                DB::raw('(select count(*) from order_items where order_items.order_id = orders.id) as orderItemsCount')
+            ])
+            ->latest()
+            ->get();
 
-        // group by delivery_status
+        // Group orders by delivery_status
         $groupedOrders = $orders->groupBy('delivery_status');
+
+        // Build response with all statuses (even if empty)
+        $formattedData = collect($statuses)->mapWithKeys(function ($status) use ($groupedOrders) {
+            return [$status => $groupedOrders->get($status, collect([]))->values()];
+        });
 
         return response()->json([
             'success' => true,
             'code'    => 200,
-            'message' => 'order history',
-            'data'    => $groupedOrders
+            'message' => 'Order history fetched successfully',
+            'data'    => $formattedData,
         ]);
-
     }
+
 
    public function orderDetails(Request $request, $id)
     {

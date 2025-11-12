@@ -300,17 +300,12 @@ class ProductController extends Controller
     public function show(string $id)
     {
         $product = Product::with([
-            'category:id,name',
-            'brand:id,name',
             'gellary_images:id,product_id,image',
             'tags:id,product_id,name',
         ])->find($id);
         return view('backend.layouts.product.show', compact('product'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id)
     {
         $data = Product::with(['tags', 'gellary_images', 'variants'])->find($id);
@@ -328,9 +323,6 @@ class ProductController extends Controller
     }
 
 
-    /**
-     * Update the specified resource in storage.
-     */
    public function update(Request $request, $id)
     {
         $product = Product::with(['gellary_images', 'variants', 'productSizes'])->findOrFail($id);
@@ -467,7 +459,6 @@ class ProductController extends Controller
     }
 
 
-
     private function storeTags(Request $request, Product $product): void
     {
         $tags = explode(',', $request->tags);
@@ -505,10 +496,7 @@ class ProductController extends Controller
         }
     }
 
-
-    /**
-     * Remove the specified resource from storage.
-     */
+    
     public function destroy(string $id)
     {
         //

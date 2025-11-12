@@ -18,6 +18,10 @@ use App\Http\Controllers\Web\Backend\Game\VersusCategoryController;
 use App\Http\Controllers\Web\Backend\Game\GameController;
 use App\Http\Controllers\Web\Backend\SliderBannerController;
 use App\Http\Controllers\Web\Backend\Charity\ProgrammeController;
+use App\Http\Controllers\Web\Backend\Charity\SponsorController;
+use App\Http\Controllers\Web\Backend\Charity\Wishlist\CharityWishlistController;
+use App\Http\Controllers\Web\Backend\Charity\Wishlist\WishlistCategoryController;
+use App\Http\Controllers\Web\Backend\Charity\Wishlist\CharityWishlistListController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,79 +36,94 @@ use App\Http\Controllers\Web\Backend\Charity\ProgrammeController;
 
 use App\Http\Middleware\isAdmin;
 
-    Route::middleware(['auth', isAdmin::class])->prefix('admin')->group(function () {
-        // dashboard page route
-        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+Route::middleware(['auth', isAdmin::class])->prefix('admin')->group(function () {
+    // dashboard page route
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-        // admin management
-        Route::resource('/admin', AdminController::class);
-        Route::post('/admin/update-status', [AdminController::class, 'updateStatus'])->name('admin.status');
-        Route::post('/change-password', [AdminController::class, 'changePassword'])->name('change.password');
+    // admin management
+    Route::resource('/admin', AdminController::class);
+    Route::post('/admin/update-status', [AdminController::class, 'updateStatus'])->name('admin.status');
+    Route::post('/change-password', [AdminController::class, 'changePassword'])->name('change.password');
 
-        // user management
-        Route::resource('/user', UserController::class);
-        Route::get('/user-message', [UserController::class, 'messages'])->name('user.message');
-        Route::post('/update/update-status', [UserController::class, 'updateStatus'])->name('user.status');
+    // user management
+    Route::resource('/user', UserController::class);
+    Route::get('/user-message', [UserController::class, 'messages'])->name('user.message');
+    Route::post('/update/update-status', [UserController::class, 'updateStatus'])->name('user.status');
 
-        // user management
-        // Route::controller(UserController::class)->group(function(){
-        //     Route::get('/user', 'index')->name('user.index');
-        //     Route::post('/update-status', 'updateStatus')->name('user.status');
-        //     Route::delete('/delete-user/{user}', 'destroy')->name('delete.user');
+    // user management
+    // Route::controller(UserController::class)->group(function(){
+    //     Route::get('/user', 'index')->name('user.index');
+    //     Route::post('/update-status', 'updateStatus')->name('user.status');
+    //     Route::delete('/delete-user/{user}', 'destroy')->name('delete.user');
 
-        //     Route::get('chat/{id}', 'chat')->name('chat');
-        // });
+    //     Route::get('chat/{id}', 'chat')->name('chat');
+    // });
 
-        // order
-        Route::resource('order', OrderController::class);
-        Route::post('view-order', [OrderController::class, 'viewOrder'])->name('view.order');
-        Route::post('order-status', [OrderController::class, 'OrderStatus'])->name('order.status');
+    // order
+    Route::resource('order', OrderController::class);
+    Route::post('view-order', [OrderController::class, 'viewOrder'])->name('view.order');
+    Route::post('order-status', [OrderController::class, 'OrderStatus'])->name('order.status');
 
-        Route::resource('delivery-option', DeliveryController::class);
-        Route::post('/delivery-option/update-status', [DeliveryController::class, 'updateStatus'])->name('delivery-option.status');
+    Route::resource('delivery-option', DeliveryController::class);
+    Route::post('/delivery-option/update-status', [DeliveryController::class, 'updateStatus'])->name('delivery-option.status');
 
-        Route::resource('category', CategoryController::class);
-        Route::post('/category/update-status', [CategoryController::class, 'updateStatus'])->name('category.status');
-        Route::post('/category/toggle-featured', [CategoryController::class, 'toggleFeatured'])->name('category.toggleFeatured');
-        Route::post('/category/toggle-menu-featured', [CategoryController::class, 'toggleMenuFeatured'])->name('category.toggleMenuFeatured');
+    Route::resource('category', CategoryController::class);
+    Route::post('/category/update-status', [CategoryController::class, 'updateStatus'])->name('category.status');
+    Route::post('/category/toggle-featured', [CategoryController::class, 'toggleFeatured'])->name('category.toggleFeatured');
+    Route::post('/category/toggle-menu-featured', [CategoryController::class, 'toggleMenuFeatured'])->name('category.toggleMenuFeatured');
 
-        Route::resource('attribute', controller: AttributeController::class);
+    Route::resource('attribute', controller: AttributeController::class);
 
-        // faq
-        Route::resource('/faq', FaqController::class);
-        Route::post('/update-faq-status', [FaqController::class, 'updateStatus'])->name('faq.status');
+    // faq
+    Route::resource('/faq', FaqController::class);
+    Route::post('/update-faq-status', [FaqController::class, 'updateStatus'])->name('faq.status');
 
-         // product management
-        Route::resource('product', ProductController::class);
-        Route::get('/get-subcategories/{category_id}', [CategoryController::class, 'getSubcategories']);
-        Route::post('/product/update-status', [ProductController::class, 'updateStatus'])->name('product.status');
-        Route::post('/product/toggle-featured', [ProductController::class, 'toggleFeatured'])->name('product.toggleFeatured');
+    // product management
+    Route::resource('product', ProductController::class);
+    Route::get('/get-subcategories/{category_id}', [CategoryController::class, 'getSubcategories']);
+    Route::post('/product/update-status', [ProductController::class, 'updateStatus'])->name('product.status');
+    Route::post('/product/toggle-featured', [ProductController::class, 'toggleFeatured'])->name('product.toggleFeatured');
 
-        // game
-        Route::resource('game-category', VersusCategoryController::class);
-        Route::post('/game-category/update-status', [VersusCategoryController::class, 'updateStatus'])->name('game-category.status');
+    // game
+    Route::resource('game-category', VersusCategoryController::class);
+    Route::post('/game-category/update-status', [VersusCategoryController::class, 'updateStatus'])->name('game-category.status');
 
-        Route::resource('game', GameController::class);
-        Route::post('/game/update-status', [GameController::class, 'updateStatus'])->name('game.status');
+    Route::resource('game', GameController::class);
+    Route::post('/game/update-status', [GameController::class, 'updateStatus'])->name('game.status');
 
-        // settings
-        Route::resource('system-setting', SystemSettingController::class);
+    // settings
+    Route::resource('system-setting', SystemSettingController::class);
 
-        // social link
-        Route::resource('/sociallink-setting', LinkSocialController::class);
+    // social link
+    Route::resource('/sociallink-setting', LinkSocialController::class);
 
-         // slider banner
-        Route::resource('slider-banner', SliderBannerController::class);
+    // slider banner
+    Route::resource('slider-banner', SliderBannerController::class);
 
-        // charity
-        Route::resource('programmes', ProgrammeController::class);
-        Route::get('digital-programmes', [ProgrammeController::class, 'digitalProgrammes'])->name('programmes.digital');
-        Route::get('donation-list/{id}', [ProgrammeController::class, 'donationList'])->name('donation.list');
-        Route::get('volunteer-list/{id}', [ProgrammeController::class, 'volunteerList'])->name('volunteer.list');
-        Route::get('physical-programmes', [ProgrammeController::class, 'physicalProgrammes'])->name('programmes.physical');
-        Route::post('/volunteer/paid', [ProgrammeController::class, 'paid'])->name('coin.paid');
-        Route::post('/programmes/update-status', [ProgrammeController::class, 'updateStatus'])->name('programmes.status');
+    // charity
+    Route::resource('programmes', ProgrammeController::class);
+    Route::get('digital-programmes', [ProgrammeController::class, 'digitalProgrammes'])->name('programmes.digital');
+    Route::get('donation-list/{id}', [ProgrammeController::class, 'donationList'])->name('donation.list');
+    Route::get('volunteer-list/{id}', [ProgrammeController::class, 'volunteerList'])->name('volunteer.list');
+    Route::get('physical-programmes', [ProgrammeController::class, 'physicalProgrammes'])->name('programmes.physical');
+    Route::post('/volunteer/paid', [ProgrammeController::class, 'paid'])->name('coin.paid');
+    Route::post('/programmes/update-status', [ProgrammeController::class, 'updateStatus'])->name('programmes.status');
 
-    });
+    // sponsor
+    Route::resource('/sponsor', SponsorController::class);
+    Route::post('/sponsor/sponsor-status', [SponsorController::class, 'sponsorStatus'])->name('sponsor.status');
 
+    // wishlist
+    Route::resource('wishlist-category', WishlistCategoryController::class);
+    Route::post('/wishlist-category/update-status', [WishlistCategoryController::class, 'updateStatus'])->name('wishlist-category.status');
+
+    Route::resource('wishlist', CharityWishlistController::class);
+    Route::post('/wishlist/update-status', [CharityWishlistController::class, 'updateStatus'])->name('wishlist.status');
+
+    Route::resource('wishlist-list', CharityWishlistListController::class);
+    Route::post('/wishlist-list/update-status', [CharityWishlistListController::class, 'updateStatus'])->name('wishlist-list.status');
+
+    Route::get('/gifts', [CharityWishlistListController::class, 'gifts'])->name('gifts');
+
+});
 

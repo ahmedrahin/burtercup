@@ -16,11 +16,7 @@ class Cart extends Model
         return  $this->belongsTo(User::class);
     }
 
-    public function cartOptions()
-    {
-        return $this->hasOne(CartOptions::class, 'cart_id');
-    }
-
+   
       protected $casts = [
         'user_id' => 'integer',
         'product_id' => 'integer'

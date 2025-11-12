@@ -18,6 +18,8 @@ use Illuminate\Auth\Events\Verified;
 use App\Http\Controllers\API\Game\GameController;
 use App\Http\Controllers\API\HomePagesController;
 use App\Http\Controllers\API\Charity\ProgrammeController;
+use App\Http\Controllers\Web\Backend\Charity\SponsorController;
+use App\Http\Controllers\API\Charity\WishlistController as CharityWishlistController;
 
 /*
 |--------------------------------------------------------------------------
@@ -205,6 +207,14 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
         Route::get('programme-details/{id}', 'details');
         Route::post('donate/{id}', 'donate');
         Route::post('voluenter-register/{id}', 'voluenterRegister');
+        Route::get('program-info', 'programInfo');
+    });
+
+    Route::get('sponsor-list', [SponsorController::class, 'list']);
+    Route::get('sponsor-details/{id}', [SponsorController::class, 'details']);
+
+    Route::controller(CharityWishlistController::class)->group(function () {
+        Route::post('create-gift/{id}', 'createGift');
     });
 
 });

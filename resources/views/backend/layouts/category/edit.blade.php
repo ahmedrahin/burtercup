@@ -185,6 +185,7 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
+            
             $('#addform').on('submit', function(e) {
                 e.preventDefault();
                 $('.error').html('');

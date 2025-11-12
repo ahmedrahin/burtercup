@@ -295,7 +295,6 @@
 
     </style>
 
-
 @endpush
 
 @section('content')
@@ -328,7 +327,6 @@
             </ul>
         </div>
 
-        <!-- new-page-wrap -->
         <form class="form-new-page" id="addform" enctype="multipart/form-data">
             <div class="new-page-wrap">
                 <div class="left">
@@ -338,10 +336,8 @@
                 <div class="right">
                     @include('backend.layouts.product.create-component.right-side')
                 </div>
-
             </div>
         </form>
-        <!-- /new-page-wrap -->
     </div>
 
 @endsection

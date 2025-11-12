@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\Validator;
 
 class ProgrammeController extends Controller
 {
-    public function programmeList(Request $request){
+    public function programmeList(Request $request)
+    {
         $user = auth('api')->user();
 
         if (!$user) {
@@ -24,14 +25,14 @@ class ProgrammeController extends Controller
 
         $query = $request->input('query');
 
-        if($query == 'all'){
-            $programmes = Programme::where('status', 'active')->get(['title', 'image', 'country', 'id']);
-        } elseif($query == 'local'){
-            $programmes = Programme::whereNotNull('country')->where('country', $user->country)->where('status', 'active')->get(['title', 'image', 'country', 'id']);
-        }elseif($query == 'global'){
-            $programmes = Programme::whereNull('country')->where('status', 'active')->get(['title', 'image', 'country', 'id']);
+        if ($query == 'all') {
+            $programmes = Programme::where('status', 'active')->get(['title', 'image', 'country', 'id', 'type']);
+        } elseif ($query == 'local') {
+            $programmes = Programme::whereNotNull('country')->where('country', $user->country)->where('status', 'active')->get(['title', 'image', 'country', 'id', 'type']);
+        } elseif ($query == 'global') {
+            $programmes = Programme::whereNull('country')->where('status', 'active')->get(['title', 'image', 'country', 'id', 'type']);
         } else {
-            $programmes = Programme::where('status', 'active')->get(['title', 'image', 'country', 'id']);
+            $programmes = Programme::where('status', 'active')->get(['title', 'image', 'country', 'id', 'type']);
         }
 
         return response()->json([
@@ -42,7 +43,8 @@ class ProgrammeController extends Controller
         ]);
     }
 
-    public function details($id){
+    public function details($id)
+    {
         $user = auth('api')->user();
 
         if (!$user) {
@@ -55,7 +57,7 @@ class ProgrammeController extends Controller
 
         $programme = Programme::where('id', $id)->where('status', 'active')->first();
 
-        if(!$programme){
+        if (!$programme) {
             return response()->json([
                 'success' => false,
                 'message' => 'Programme not found',
@@ -63,15 +65,43 @@ class ProgrammeController extends Controller
             ], 404);
         }
 
+        if ($programme->type == 'digital') {
+            $donations = $programme->donations()->with('user:id,avatar')->limit(5)->latest()->get();
+
+            $userData = [
+                'total' => $donations->count(),
+                'images' => $donations->map(function ($donation) {
+                    return [
+                        'donation_id' => $donation->id,
+                        'avatar' => $donation->user->avatar ?? null,
+                    ];
+                }),
+            ];
+        }else {
+            $volunteer = $programme->volunteer()->with('user:id,avatar')->limit(5)->latest()->get();
+
+            $userData = [
+                'total' => $volunteer->count(),
+                'images' => $volunteer->map(function ($volunteer) {
+                    return [
+                        'volunteer_id' => $volunteer->id,
+                        'avatar' => $volunteer->user->avatar ?? null,
+                    ];
+                }),
+            ];
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'programme details retrieved successfully',
             'status' => 200,
-            'data' => $programme
+            'data' => $programme,
+            'userData' => $userData
         ]);
     }
 
-    public function donate(Request $request, $id){
+    public function donate(Request $request, $id)
+    {
         $user = auth('api')->user();
 
         if (!$user) {
@@ -84,7 +114,7 @@ class ProgrammeController extends Controller
 
         $programme = Programme::where('id', $id)->where('status', 'active')->first();
 
-        if(!$programme){
+        if (!$programme) {
             return response()->json([
                 'success' => false,
                 'message' => 'Programme not found',
@@ -129,8 +159,8 @@ class ProgrammeController extends Controller
             'data' => $donation
         ]);
     }
-
-    public function voluenterRegister(Request $request, $id){
+    public function voluenterRegister(Request $request, $id)
+    {
         $user = auth('api')->user();
 
         if (!$user) {
@@ -143,7 +173,7 @@ class ProgrammeController extends Controller
 
         $programme = Programme::where('id', $id)->where('status', 'active')->where('type', 'physical')->first();
 
-        if(!$programme){
+        if (!$programme) {
             return response()->json([
                 'success' => false,
                 'message' => 'Programme not found',
@@ -153,7 +183,7 @@ class ProgrammeController extends Controller
 
         $alreadyExist = Volunteer::where('user_id', $user->id)->where('programme_id', $programme->id)->first();
 
-         if($alreadyExist){
+        if ($alreadyExist) {
             return response()->json([
                 'success' => false,
                 'message' => 'You already register this programme',
@@ -171,6 +201,22 @@ class ProgrammeController extends Controller
             'message' => 'Thanks for register',
             'status' => 200,
             'data' => $data
+        ]);
+    }
+
+    public function programInfo(){
+
+        $data = [
+            'total_helped' => UserDonation::count(),
+            'allProgram' => Programme::count(),
+            'wishlist' => 2
+        ];
+
+        return response()->json([
+            'success' => true,
+            'message' => 'We thank you for your contribution!',
+            'status' => 200,
+            'data' => array ($data)
         ]);
     }
 

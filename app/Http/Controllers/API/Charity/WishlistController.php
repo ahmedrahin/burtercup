@@ -1,0 +1,98 @@
+<?php
+
+namespace App\Http\Controllers\API\Charity;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\Gift;
+use App\Models\WishlistList;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+use App\Helpers\Helper;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+
+class WishlistController extends Controller
+{
+    public function createGift(Request $request, $id){
+        $user = auth('api')->user();
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized. Please log in first to access your profile.',
+                'code' => 401,
+            ], 401);
+        }
+
+        $list = WishlistList::find($id);
+
+         if (!$list) {
+            return response()->json([
+                'status' => false,
+                'message' => 'The wishlist list not found',
+                'code' => 400,
+            ], 400);
+        }
+
+         $validator = Validator::make($request->all(), [
+            'name' => 'required|string|unique:products,name',
+            'image' => 'required|image',
+            'condition' => 'required|string',
+            'delivery_address' => 'required',
+            'shipping_option' => 'required',
+        ], messages: [
+            'image.required' => 'Please select at least one product image'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => $validator->errors()->all(),
+                'status' => false,
+            ], 400);
+        }
+
+        if ($request->hasFile('image')) {
+            $randomString = (string) Str::uuid();
+            $imagePath = Helper::fileUpload($request->file('image'), 'gift', $randomString);
+        }
+        if ($request->hasFile('image2')) {
+            $randomString = (string) Str::uuid();
+            $imagePath2 = Helper::fileUpload($request->file('image2'), 'gift', $randomString);
+        }
+        if ($request->hasFile('image3')) {
+            $randomString = (string) Str::uuid();
+            $imagePath3 = Helper::fileUpload($request->file('image3'), 'gift', $randomString);
+        }
+
+         $data = [
+            'wishlist_list_id' => $list->id,
+            'name' => $request->name,
+            'description' => $request->description,
+            'user_id' => auth()->id(),
+            'condition' => $request->condition,
+            'delivery_address' => $request->delivery_address,
+            'shipping_option' => $request->shipping_option
+        ];
+
+        if (isset($imagePath)) {
+            $data['image'] = $imagePath;
+        }
+        if (isset($imagePath2)) {
+            $data['image2'] = $imagePath2;
+        }
+        if (isset($imagePath3)) {
+            $data['image3'] = $imagePath3;
+        }
+
+        $product = Gift::create($data);
+
+        return response()->json([
+            'status' => true,
+            'code' => 200,
+            'message' => 'Thanks for your contribute',
+            'data' => $product,
+        ], 200);
+
+    }
+}
