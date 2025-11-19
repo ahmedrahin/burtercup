@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web\Backend\Charity\Wishlist;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\CharityWishlist;
+use App\Models\Gift;
 use App\Models\WishlistList;
 use Yajra\DataTables\DataTables;
 
@@ -124,17 +125,40 @@ class CharityWishlistListController extends Controller
         return response()->json(['message' => $message, 'type' => $type]);
     }
 
-
-     public function gifts(Request $request)
+    public function gifts(Request $request)
     {
         if ($request->ajax()) {
 
-            $data = WishlistList::latest()->get();
+            $data = Gift::latest()->get();
 
             return DataTables::of($data)
                 ->addIndexColumn()
-                
-                ->rawColumns(['image', 'name', 'product', 'status', 'action', 'is_featured', 'menu_featured'])
+
+                ->addColumn('user_id', function ($row) {
+                    return $row->user->name ?? '';
+                })
+
+                ->addColumn('wishlist', function ($row) {
+                    return $row->wishlistList->title ?? '';
+                })
+
+                ->addColumn('created_at', function ($row) {
+                    return $row->created_at->format('d M Y');
+                })
+
+                ->addColumn('is_approve', function ($row) {
+                    $status = $row->is_approve == 1 ? 'success' : 'danger';
+                    return '<span class="badge bg-' . $status . '">' . ($row->is_approve == 1 ? 'Approved' : 'Pending') . '</span>';
+                })
+
+                ->addColumn('action', function ($row) {
+                    return '<div class="list-icon-function flex items-center gap-2 justify-end">
+                                <a href="' . route('wishlist-list.edit', $row->id) . '" class="item edit"><i class="icon-edit-3"></i></a>
+                                <button class="item trash" data-id="' . $row->id . '"><i class="icon-trash-2"></i></button>
+                            </div>';
+                })
+
+                ->rawColumns(['user', 'name', 'wishlist', 'is_approve', 'action', 'is_featured', 'menu_featured'])
                 ->make(true);
         }
 

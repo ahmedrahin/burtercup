@@ -12,4 +12,8 @@ class Gift extends Model
         return $this->belongsTo(WishlistList::class, 'wishlist_list_id');
     }
 
+    public function user(){
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
 }

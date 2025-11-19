@@ -120,7 +120,8 @@
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', className: 'text-left', orderable: false, searchable: false },
                 { data: 'name', name: 'name', searchable: true, orderable: true },
                 { data: 'wishlist', name: 'wishlist', orderable: false, searchable: false, className: 'text-center' },
-                { data: 'status', name: 'status', orderable: false, searchable: false, className: 'text-center' },
+                { data: 'created_at', name: 'created_at', orderable: false, searchable: false, className: 'text-center' },
+                { data: 'is_approve', name: 'is_approve', orderable: false, searchable: false, className: 'text-center' },
                 { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-right' }
             ],
             drawCallback: function(settings) {

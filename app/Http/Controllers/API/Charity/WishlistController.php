@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Gift;
 use App\Models\WishlistList;
+use App\Models\WishlistCategory;
+use App\Models\CharityWishlist;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use App\Helpers\Helper;
@@ -95,4 +97,47 @@ class WishlistController extends Controller
         ], 200);
 
     }
+
+    public function WishlistCategory(){
+        $categories = WishlistCategory::where('status', 'active')->get();
+
+        return response()->json([
+            'status' => true,
+            'code' => 200,
+            'data' => $categories,
+        ], 200);
+    }
+
+    public function CharityWishlist(Request $request)
+    {
+        $category = $request->input('category');
+
+        $query = CharityWishlist::with('category:id,name')->where('status', 'active');
+
+        if ($category) {
+            $query->whereHas('category', function ($q) use ($category) {
+                $q->where('name', $category);
+            });
+        }
+
+        $lists = $query->get();
+
+        return response()->json([
+            'status' => true,
+            'code'   => 200,
+            'data'   => $lists,
+        ], 200);
+    }
+
+    public function wishlistItems($id)
+    {
+        $items = WishlistList::where('charity_wishlist_id', $id)->where('status', 'active')->get();
+
+        return response()->json([
+            'status' => true,
+            'code'   => 200,
+            'data'   => $items,
+        ], 200);
+    }
+
 }

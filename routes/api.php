@@ -215,6 +215,9 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
 
     Route::controller(CharityWishlistController::class)->group(function () {
         Route::post('create-gift/{id}', 'createGift');
+        Route::get('wishlist-category', 'WishlistCategory');
+        Route::get('charity-wishlist-list', 'CharityWishlist');
+        Route::get('charity-wishlist-items/{id}', 'wishlistItems');
     });
 
 });
