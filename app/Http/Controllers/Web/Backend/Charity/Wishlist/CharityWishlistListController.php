@@ -139,7 +139,7 @@ class CharityWishlistListController extends Controller
                 })
 
                 ->addColumn('wishlist', function ($row) {
-                    return $row->wishlistList->title ?? '';
+                    return $row->wishlistList->wishlist->title . ' -> ' . $row->wishlistList->title ?? '';
                 })
 
                 ->addColumn('created_at', function ($row) {
@@ -153,7 +153,7 @@ class CharityWishlistListController extends Controller
 
                 ->addColumn('action', function ($row) {
                     return '<div class="list-icon-function flex items-center gap-2 justify-end">
-                                <a href="' . route('wishlist-list.edit', $row->id) . '" class="item edit"><i class="icon-edit-3"></i></a>
+                                <a href="' . route('gift.details', $row->id) . '" class="item edit"><i class="icon-eye"></i></a>
                                 <button class="item trash" data-id="' . $row->id . '"><i class="icon-trash-2"></i></button>
                             </div>';
                 })
@@ -163,6 +163,51 @@ class CharityWishlistListController extends Controller
         }
 
         return view('backend.layouts.charity.wishlist.gift.gifts');
+    }
+
+    public function giftDetails(string $id)
+    {
+        $data = Gift::findOrFail($id);
+        return view('backend.layouts.charity.wishlist.gift.details', compact('data'));
+    }
+
+    public function giftApprove(Request $request,string $id)
+    {
+        $data = Gift::findOrFail($id);
+        $data->is_approve = $request->approve;
+        $data->save();
+
+        $coin = $data->wishlistList->wishlist->coin ?? 0;
+        $user = $data->user;
+        if ($request->approve == 1) {
+            if($data->shipping_option == 1){
+                $coin += 100;
+            }
+            $user->coins += $coin;
+            $user->save();
+        } else {
+            if($data->shipping_option == 1){
+                $coin += 100;
+            }
+            $user->coins -= $coin;
+            if ($user->coins < 0) {
+                $user->coins = 0;
+            }
+            $user->save();
+        }
+
+        $message = $request->approve == 1 ? "Gift approved successfully." : "Gift approval revoked.";
+        $type = $request->approve == 1 ? 'success' : 'info';
+
+        return response()->json(['message' => $message, 'type' => $type]);
+    }
+
+    public function giftDelete(Request $request)
+    {
+        $data = Gift::findOrFail($request->id);
+        $data->delete();
+
+        return response()->json(['message' => 'Gift deleted successfully.']);
     }
 
 }

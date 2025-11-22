@@ -124,6 +124,9 @@ Route::middleware(['auth', isAdmin::class])->prefix('admin')->group(function () 
     Route::post('/wishlist-list/update-status', [CharityWishlistListController::class, 'updateStatus'])->name('wishlist-list.status');
 
     Route::get('/gifts', [CharityWishlistListController::class, 'gifts'])->name('gifts');
+    Route::post('/gift-delete', [CharityWishlistListController::class, 'giftDelete'])->name('gift.delete');
+    Route::get('/gift-details/{id}', [CharityWishlistListController::class, 'giftDetails'])->name('gift.details');
+    Route::post('/gift-approve/{id}', [CharityWishlistListController::class, 'giftApprove'])->name('gift.approve');
 
 });
 
