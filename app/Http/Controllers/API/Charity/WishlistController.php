@@ -8,6 +8,7 @@ use App\Models\Gift;
 use App\Models\WishlistList;
 use App\Models\WishlistCategory;
 use App\Models\CharityWishlist;
+use App\Models\CharityChecklist;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use App\Helpers\Helper;
@@ -97,7 +98,6 @@ class WishlistController extends Controller
         ], 200);
 
     }
-
     public function WishlistCategory(){
         $categories = WishlistCategory::where('status', 'active')->get();
 
@@ -138,6 +138,54 @@ class WishlistController extends Controller
             'code'   => 200,
             'data'   => $items,
         ], 200);
+    }
+
+    public function charityChecklist(Request $request){
+        $user = auth('api')->user();
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized. Please log in first to access your profile.',
+                'code' => 401,
+            ], 401);
+        }
+
+        $lists = $request->input('checklist');
+
+        if (!$lists || !is_array($lists)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'The checklist field is required',
+                'code' => 400,
+            ], 400);
+        }
+
+        foreach ($lists as $listId) {
+
+            $existing = CharityChecklist::where('user_id', auth()->id())
+                ->where('wishlist_list_id', $listId)
+                ->first();
+
+            $wishlistList = WishlistList::find($listId);
+
+            if ($existing || !$wishlistList) {
+                continue;
+            }
+
+            $data = CharityChecklist::create([
+                'user_id' => auth()->id(),
+                'wishlist_list_id' => $listId,
+                'status' => 'pending',
+            ]);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Checklist created successfully',
+            'code' => 201,
+        ], 201);
+
     }
 
 }

@@ -268,7 +268,7 @@
 
                     <li class="menu-item has-children {{ request()->routeIs('wishlist-list*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">
-                            <div class="icon"><i class="icon-gift"></i></div>
+                            <div class="icon"><i class="icon-heart"></i></div>
                             <div class="text">Wishlist Items</div>
                         </a>
                         <ul class="sub-menu">
@@ -283,6 +283,20 @@
                                 </a>
                             </li>
 
+                            <li class="sub-menu-item">
+                                <a href="{{ route('gifts') }}" class="{{ request()->routeIs('gifts') ? 'active' : '' }}">
+                                    <div class="text">Gifts Information</div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="menu-item has-children {{ request()->routeIs('gifts*') ? 'active' : '' }}">
+                        <a href="javascript:void(0);" class="menu-item-button">
+                            <div class="icon"><i class="icon-gift"></i></div>
+                            <div class="text">Gift Information</div>
+                        </a>
+                        <ul class="sub-menu">
                             <li class="sub-menu-item">
                                 <a href="{{ route('gifts') }}" class="{{ request()->routeIs('gifts') ? 'active' : '' }}">
                                     <div class="text">Gifts Information</div>

@@ -218,6 +218,7 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
         Route::get('wishlist-category', 'WishlistCategory');
         Route::get('charity-wishlist-list', 'CharityWishlist');
         Route::get('charity-wishlist-items/{id}', 'wishlistItems');
+        Route::post('charity-checklist', 'charityChecklist');
     });
 
 });
