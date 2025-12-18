@@ -123,10 +123,18 @@ Route::middleware(['auth', isAdmin::class])->prefix('admin')->group(function () 
     Route::resource('wishlist-list', CharityWishlistListController::class);
     Route::post('/wishlist-list/update-status', [CharityWishlistListController::class, 'updateStatus'])->name('wishlist-list.status');
 
-    Route::get('/gifts', [CharityWishlistListController::class, 'gifts'])->name('gifts');
-    Route::post('/gift-delete', [CharityWishlistListController::class, 'giftDelete'])->name('gift.delete');
-    Route::get('/gift-details/{id}', [CharityWishlistListController::class, 'giftDetails'])->name('gift.details');
-    Route::post('/gift-approve/{id}', [CharityWishlistListController::class, 'giftApprove'])->name('gift.approve');
+    Route::controller(CharityWishlistListController::class)->group(function () {
+
+        Route::get('/gifts', 'gifts')->name('gifts');
+        Route::post('/gift-delete', 'giftDelete')->name('gift.delete');
+        Route::get('/gift-details/{id}', 'giftDetails')->name('gift.details');
+        Route::post('/gift-approve/{id}', 'giftApprove')->name('gift.approve');
+        Route::get('/cherity-checklist', 'cherityChecklist')->name('cherity.checklist');
+        Route::get('/cherity-details/{id}', 'cherityDetails')->name('checklist.details');
+        Route::post('/cherity-status/{id}', 'checklistStatus')->name('checklist.status');
+
+    });
+
 
 });
 

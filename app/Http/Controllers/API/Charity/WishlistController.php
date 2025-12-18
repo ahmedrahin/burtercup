@@ -42,7 +42,6 @@ class WishlistController extends Controller
             'name' => 'required|string|unique:products,name',
             'image' => 'required|image',
             'condition' => 'required|string',
-            'delivery_address' => 'required',
             'shipping_option' => 'required',
         ], messages: [
             'image.required' => 'Please select at least one product image'

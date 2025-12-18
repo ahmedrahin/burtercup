@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\CharityWishlist;
 use App\Models\Gift;
 use App\Models\WishlistList;
+use App\Models\CharityChecklist;
 use Yajra\DataTables\DataTables;
 
 class CharityWishlistListController extends Controller
@@ -21,10 +22,10 @@ class CharityWishlistListController extends Controller
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('name', function ($row) {
-                   return $row->title;
+                    return $row->title;
                 })
                 ->addColumn('wishlist', function ($row) {
-                   return $row->wishlist->title ?? '';
+                    return $row->wishlist->title ?? '';
                 })
                 ->addColumn('status', function ($row) {
                     $status = $row->status == 'active' ? 'checked' : '';
@@ -171,7 +172,7 @@ class CharityWishlistListController extends Controller
         return view('backend.layouts.charity.wishlist.gift.details', compact('data'));
     }
 
-    public function giftApprove(Request $request,string $id)
+    public function giftApprove(Request $request, string $id)
     {
         $data = Gift::findOrFail($id);
         $data->is_approve = $request->approve;
@@ -180,13 +181,13 @@ class CharityWishlistListController extends Controller
         $coin = $data->wishlistList->wishlist->coin ?? 0;
         $user = $data->user;
         if ($request->approve == 1) {
-            if($data->shipping_option == 1){
+            if ($data->shipping_option == 1) {
                 $coin += 100;
             }
             $user->coins += $coin;
             $user->save();
         } else {
-            if($data->shipping_option == 1){
+            if ($data->shipping_option == 1) {
                 $coin += 100;
             }
             $user->coins -= $coin;
@@ -208,6 +209,78 @@ class CharityWishlistListController extends Controller
         $data->delete();
 
         return response()->json(['message' => 'Gift deleted successfully.']);
+    }
+
+    public function cherityChecklist(Request $request)
+    {
+        if ($request->ajax()) {
+            $data = CharityChecklist::latest()->get();
+
+            return DataTables::of($data)
+                ->addIndexColumn()
+
+                ->addColumn('user_id', function ($row) {
+                    return $row->user->name ?? '';
+                })
+
+               ->addColumn('wishlist', function ($row) {
+                    $list = $row->wishlistList;
+                    if (!$list) return '';
+
+                    $wishlist = $list->wishlist->title ?? '';
+                    $child = $list->title ?? '';
+
+                    return $wishlist . ' -> ' . $child;
+                })
+
+
+                ->addColumn('created_at', function ($row) {
+                    return $row->created_at->format('d M Y');
+                })
+
+                ->addColumn('status', function ($row) {
+                    $status = 'secondary';
+                    if ($row->status == 'pending') {
+                        $status = 'warning';
+                    } elseif ($row->status == 'approved') {
+                        $status = 'success';
+                    } elseif ($row->status == 'rejected') {
+                        $status = 'danger';
+                    } elseif ($row->status == 'completed') {
+                        $status = 'info';
+                    }
+                    return '<span class="badge bg-' . $status . '">' . ucfirst($row->status) . '</span>';
+                })
+
+                ->addColumn('action', function ($row) {
+                    return '<div class="list-icon-function flex items-center gap-2 justify-end">
+                                <a href="' . route('checklist.details', $row->id) . '" class="item edit"><i class="icon-eye"></i></a>
+                            </div>';
+                })
+
+                ->rawColumns(['user', 'name', 'wishlist', 'status', 'action'])
+                ->make(true);
+        }
+
+        return view('backend.layouts.charity.wishlist.gift.checklist');
+    }
+
+    public function cherityDetails(Request $request, string $id)
+    {
+        $data = CharityChecklist::findOrFail($id);
+        return view('backend.layouts.charity.wishlist.gift.checklist-details', compact('data'));
+    }
+
+    public function checklistStatus(Request $request, string $id)
+    {
+        $data = CharityChecklist::findOrFail($id);
+        $data->status = $request->status;
+        $data->save();
+
+        $message = "Checklist status updated to " . ucfirst($request->status) . ".";
+        $type = 'success';
+
+        return response()->json(['message' => $message, 'type' => $type]);
     }
 
 }

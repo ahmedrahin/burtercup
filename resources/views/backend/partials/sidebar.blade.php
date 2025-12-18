@@ -282,16 +282,10 @@
                                     <div class="text">Add New Item</div>
                                 </a>
                             </li>
-
-                            <li class="sub-menu-item">
-                                <a href="{{ route('gifts') }}" class="{{ request()->routeIs('gifts') ? 'active' : '' }}">
-                                    <div class="text">Gifts Information</div>
-                                </a>
-                            </li>
                         </ul>
                     </li>
 
-                    <li class="menu-item has-children {{ request()->routeIs('gifts*') ? 'active' : '' }}">
+                    <li class="menu-item has-children {{ request()->routeIs('gifts*') || request()->routeIs('cherity.checklist') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon"><i class="icon-gift"></i></div>
                             <div class="text">Gift Information</div>
@@ -300,6 +294,11 @@
                             <li class="sub-menu-item">
                                 <a href="{{ route('gifts') }}" class="{{ request()->routeIs('gifts') ? 'active' : '' }}">
                                     <div class="text">Gifts Information</div>
+                                </a>
+                            </li>
+                            <li class="sub-menu-item">
+                                <a href="{{ route('cherity.checklist') }}" class="{{ request()->routeIs('cherity.checklist') ? 'active' : '' }}">
+                                    <div class="text">Cherity Checklist</div>
                                 </a>
                             </li>
                         </ul>

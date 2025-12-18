@@ -1,6 +1,6 @@
 @extends('backend.app')
 
-@section('title', $data->name . ' Gifts Information')
+@section('title', 'Checklist Gift Details')
 
 @push('styles')
     <style>
@@ -243,57 +243,7 @@
 
 @section('content')
     <div class="main-content-wrap">
-        <!-- Page Header -->
-        <div class="page-header">
-            <h1 class="page-title">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
-                </svg>
-                {{ $data->name }} - Gift Details
-            </h1>
-        </div>
 
-        <!-- IMAGE GALLERY CARD -->
-        <div class="card-box">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    Gift Images
-                </h3>
-            </div>
-
-            <div id="giftGallery" class="image-grid">
-                @php
-                    $images = [];
-                    foreach (['image', 'image2', 'image3'] as $img) {
-                        if ($data->$img) {
-                            $images[] = $data->$img;
-                        }
-                    }
-                @endphp
-
-                @if (count($images) > 0)
-                    @foreach ($images as $image)
-                        <a href="{{ asset($image) }}" class="image-item">
-                            <img src="{{ asset($image) }}" alt="Gift image" />
-                        </a>
-                    @endforeach
-                @else
-                    <div class="no-images">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3 text-gray-400" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <p>No images uploaded for this gift.</p>
-                    </div>
-                @endif
-            </div>
-        </div>
 
         <!-- INFORMATION SECTION -->
         <div class="card-box">
@@ -303,21 +253,11 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    Gift Information
+                    Checklist Information
                 </h3>
             </div>
 
             <div class="info-grid">
-                <div class="info-item">
-                    <p class="info-title">Gift Name</p>
-                    <p class="info-value">{{ $data->name }}</p>
-                </div>
-
-                <div class="info-item">
-                    <p class="info-title">Condition</p>
-                    <p class="info-value">{{ ucfirst($data->condition) ?? 'N/A' }}</p>
-                </div>
-
                 <div class="info-item">
                     <p class="info-title">User</p>
                     <a href="{{ route('user.show',$data->user_id) }}" class="info-value">{{ $data->user->name ?? 'N/A' }}</a>
@@ -336,28 +276,18 @@
                 </div>
 
                 <div class="info-item">
-                    <p class="info-title">Shipping Option</p>
-                    <p class="info-value">
-                        @if ($data->shipping_option == 1)
-                            Self Delivery
-                        @elseif($data->shipping_option == 2)
-                            Courier
-                        @elseif($data->shipping_option == 3)
-                            Pickup Point
-                        @else
-                            N/A
-                        @endif
-                    </p>
-                </div>
-
-                <div class="info-item">
-                    <p class="info-title">Delivery Address</p>
+                    <p class="info-title">User Address</p>
                     <p class="info-value">{{ $data->user->address ?? '' }}, {{ $data->user->city ?? '' }}, {{ $data->user->country ?? '' }}</p>
                 </div>
 
                 <div class="info-item">
-                    <p class="info-title">Approved</p>
-                    <input type="checkbox" class="is-featured-checkbox" {{ $data->is_approved ? 'checked' : '' }} data-id="{{ $data->id }}">
+                    <p class="info-title">Status</p>
+                    <select name="status" id="status" style="background: white;" data-id="{{ $data->id }}">
+                        <option value="pending" {{ $data->status == 'pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="approved" {{ $data->status == 'approved' ? 'selected' : '' }}>Approved</option>
+                        <option value="rejected" {{ $data->status == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                        <option value="completed" {{ $data->status == 'completed' ? 'selected' : '' }}>Completed</option>
+                    </select>
                 </div>
             </div>
 
@@ -386,17 +316,17 @@
     </script>
 
     <script>
-        $(document).on('change', '.is-featured-checkbox', function () {
+        $(document).on('change', '#status', function () {
             let id = $(this).data('id');
-            let approve = $(this).is(':checked') ? 1 : 0;
+            let status = $(this).val();
 
             $.ajax({
-                url: '{{ route("gift.approve", "") }}/' + id,
+                url: '{{ route("checklist.status", "") }}/' + id,
                 method: 'POST',
                 data: {
                     _token: '{{ csrf_token() }}',
                     id: id,
-                    approve: approve
+                    status: status
                 },
                 success: function (response) {
                     ajaxMessage(response.message, response.type);

@@ -20,6 +20,7 @@ use App\Http\Controllers\API\HomePagesController;
 use App\Http\Controllers\API\Charity\ProgrammeController;
 use App\Http\Controllers\Web\Backend\Charity\SponsorController;
 use App\Http\Controllers\API\Charity\WishlistController as CharityWishlistController;
+use App\Http\Controllers\API\LeaderboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -219,6 +220,12 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
         Route::get('charity-wishlist-list', 'CharityWishlist');
         Route::get('charity-wishlist-items/{id}', 'wishlistItems');
         Route::post('charity-checklist', 'charityChecklist');
+    });
+
+
+    // leaderboard
+    Route::controller(LeaderboardController::class)->group(function () {
+        Route::get('leaderboard', 'getLeaderboard');
     });
 
 });

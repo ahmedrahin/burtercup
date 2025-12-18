@@ -27,6 +27,16 @@ class Helper {
         return null;
     }
 
+    public static function formatCurrencyShort($amount){
+        if ($amount >= 1000000) {
+            return number_format($amount / 1000000, 1) . 'M';
+        } elseif ($amount >= 1000) {
+            return number_format($amount / 1000, 1) . 'K';
+        } else {
+            return number_format($amount, 0) . '';
+        }
+    }
+
     public static function sendNotifyMobile($token, $data): void
     {
         Log::info("workign");
