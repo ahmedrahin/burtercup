@@ -16,6 +16,7 @@ use App\Http\Controllers\Web\Backend\FaqController;
 use App\Models\User;
 use Illuminate\Auth\Events\Verified;
 use App\Http\Controllers\API\Game\GameController;
+use App\Http\Controllers\API\Game\MiningController;
 use App\Http\Controllers\API\HomePagesController;
 use App\Http\Controllers\API\Charity\ProgrammeController;
 use App\Http\Controllers\Web\Backend\Charity\SponsorController;
@@ -222,6 +223,19 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
         Route::post('charity-checklist', 'charityChecklist');
     });
 
+
+    // minig game 
+    Route::controller(MiningController::class)->group(function () {
+        Route::get('/mining/status', 'status');
+
+        Route::post('/mining/login-fire', 'loginFire');
+
+        Route::post('/mining/add-pressure', 'addPressure');
+
+        Route::post('/mining/add-minerals', 'addMinerals');
+
+        Route::post('/mining/fill-bar', 'fillBar');
+    });
 
     // leaderboard
     Route::controller(LeaderboardController::class)->group(function () {

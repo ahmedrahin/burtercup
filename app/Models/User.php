@@ -83,4 +83,29 @@ class User extends Authenticatable implements JWTSubject , MustVerifyEmail
         return (int) $total;
     }
 
+    public function miningStat()
+    {
+        return $this->hasOne(UserMiningStat::class);
+    }
+
+    public function activityLogs()
+    {
+        return $this->hasMany(UserActivityLog::class);
+    }
+
+    public function weeklyStats()
+    {
+        return $this->hasMany(WeeklyUserStat::class);
+    }
+
+    public function miningRewards()
+    {
+        return $this->hasMany(MiningReward::class);
+    }
+
+    public function barTransactions()
+    {
+        return $this->hasMany(BarTransaction::class);
+    }
+
 }
