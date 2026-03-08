@@ -25,7 +25,10 @@ return new class extends Migration
             $table->unsignedBigInteger('mining_seconds')->default(0);
 
             // timestamps tracking
+            $table->timestamp('last_fire_given_at')->nullable();
+
             $table->timestamp('last_mining_calculated_at')->nullable();
+            
 
             $table->timestamps();
         });

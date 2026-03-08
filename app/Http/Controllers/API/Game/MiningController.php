@@ -11,6 +11,8 @@ use App\Models\MiningReward;
 use App\Models\UserActivityLog;
 use Carbon\Carbon;
 
+use App\Services\FireService;
+
 class MiningController extends Controller
 {
     const TOTAL_MINING_SECONDS = 5000 * 3600;
@@ -21,29 +23,21 @@ class MiningController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function status()
+    public function status(FireService $fireService)
     {
         $user = auth('api')->user();
 
-        $stat = UserMiningStat::firstOrCreate(
-            ['user_id' => $user->id],
-            [
-                'fire_bar' => 3,
-                'pressure_bar' => 3,
-                'minerals_bar' => 0,
-                'mining_seconds' => 0
-            ]
-        );
+        $stat = $fireService->giveWeeklyFire($user);
 
-        $this->calculateMining($stat);
+        $data = [
+            'fire_bar' => $stat->fire_bar,
+        ];
 
         return response()->json([
-            'fire_bar' => $stat->fire_bar,
-            'pressure_bar' => $stat->pressure_bar,
-            'minerals_bar' => $stat->minerals_bar,
-            'mining_hours' => floor($stat->mining_seconds / 3600),
-            'progress_percent' => round(($stat->mining_seconds / self::TOTAL_MINING_SECONDS) * 100, 2)
-        ]);
+            'code' => 200,
+            'data' => $data,
+            'message' => 'user mining game bars data'
+        ], 200);
     }
 
     /*

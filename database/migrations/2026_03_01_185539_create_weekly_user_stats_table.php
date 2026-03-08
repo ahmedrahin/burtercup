@@ -21,6 +21,8 @@ return new class extends Migration
             $table->integer('unique_skin_visits')->default(0);
             $table->integer('uploads')->default(0);
 
+            $table->boolean('is_fire_bar_increase')->default(false);
+
             $table->timestamps();
 
             $table->unique(['user_id', 'week_start']);
